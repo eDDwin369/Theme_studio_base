@@ -1,6 +1,7 @@
 /* ==========================================================================
    THEME STUDIO / COMPONENT LIBRARY STYLES
    Enterprise SaaS Design System - Zero-Scroll Viewport Layout
+   Approved OLD UI Source of Truth for Status & Surfaces
    ========================================================================== */
 
 /* App Layout Container - Exact Viewport Fit */
@@ -15,19 +16,19 @@ html, body {
   height: 100vh;
   max-height: 100vh;
   width: 100vw;
-  background-color: var(--bg-canvas);
+  background-color: var(--theme-studio-bg, #F8FAFC);
   color: var(--text-primary);
   overflow: hidden; /* No page scroll */
   transition: background-color var(--transition-normal), color var(--transition-normal);
 }
 
 /* ==========================================================================
-   SIDEBAR
+   SIDEBAR (THEME STUDIO CONTROL PANEL - STATIC, NOT THEMED BY PREVIEW)
    ========================================================================== */
 .sidebar {
-  width: 300px;
-  min-width: 300px;
-  background-color: var(--bg-sidebar);
+  width: 310px;
+  min-width: 310px;
+  background-color: var(--theme-studio-surface, #FFFFFF);
   border-right: 1px solid var(--border-default);
   display: flex;
   flex-direction: column;
@@ -198,9 +199,9 @@ html, body {
   color: var(--text-primary);
 }
 
-/* Expanded Panel: Colour Settings */
+/* Expanded Panel: Colour Settings (Static Editor Panel) */
 .sidebar-expanded-section {
-  background: var(--bg-card);
+  background: var(--theme-studio-panel, #FFFFFF);
   border: 1px solid var(--border-default);
   border-radius: var(--radius-md);
   padding: 10px;
@@ -240,7 +241,7 @@ html, body {
   border: 1.5px solid var(--border-default);
   border-radius: var(--radius-sm);
   padding: 6px 8px;
-  background-color: var(--bg-card);
+  background-color: var(--theme-studio-surface, #FFFFFF);
   cursor: pointer;
   display: flex;
   flex-direction: column;
@@ -316,10 +317,348 @@ html, body {
 }
 
 .segmented-tab.active {
-  background: var(--bg-card);
+  background: var(--theme-studio-surface, #FFFFFF);
   color: var(--brand-primary);
   font-weight: 600;
   box-shadow: var(--shadow-sm);
+}
+
+/* ==========================================================================
+   APPROVED OLD UI: STATUS COLORS & SURFACES 2x2 GRID
+   Matches Reference Image Pixel-for-Pixel (Static Theme Studio Controls)
+   ========================================================================== */
+.old-ui-section-header {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: #64748B;
+  margin-bottom: 6px;
+}
+
+.old-ui-section-header.with-margin {
+  margin-top: 10px;
+}
+
+.old-ui-grid-2x2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 7px;
+}
+
+.old-ui-card-btn {
+  height: 40px;
+  padding: 0 10px;
+  background-color: var(--theme-studio-control-bg, #FFFFFF);
+  border: 1px solid var(--border-default);
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  cursor: pointer;
+  position: relative;
+  transition: all var(--transition-fast);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03);
+  text-align: left;
+  user-select: none;
+}
+
+.old-ui-card-btn:hover {
+  border-color: var(--border-strong);
+  background-color: #FAFAFA;
+}
+
+.old-ui-card-btn:active {
+  transform: scale(0.99);
+}
+
+.old-ui-card-btn.surface-btn {
+  height: 46px;
+  padding: 4px 10px;
+  background-color: var(--theme-studio-control-bg, #FFFFFF);
+}
+
+.old-ui-card-btn.active-trigger {
+  border-color: var(--brand-primary);
+  box-shadow: 0 0 0 2px var(--brand-primary-border);
+  background-color: var(--theme-studio-control-bg, #FFFFFF);
+}
+
+.old-ui-swatch-box {
+  width: 20px;
+  height: 20px;
+  border-radius: 5px;
+  flex-shrink: 0;
+  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.1);
+}
+
+.old-ui-swatch-box.surface-swatch {
+  border: 1.5px solid #CBD5E1;
+}
+
+.old-ui-card-label {
+  font-size: 12px;
+  font-weight: 500;
+  color: #334155;
+  line-height: 1.2;
+}
+
+.old-ui-card-label-two-line {
+  font-size: 11px;
+  font-weight: 500;
+  color: #334155;
+  line-height: 1.2;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ==========================================================================
+   ANCHORED CARD BACKGROUND POPOVER - NO BACKDROP, LIGHTWEIGHT
+   Appears beside the Card Background control
+   ========================================================================== */
+.card-bg-anchored-popover {
+  background: var(--theme-studio-panel, #FFFFFF);
+  border: 1px solid var(--border-default);
+  border-radius: 10px;
+  box-shadow: 0 10px 25px -5px rgba(15, 23, 42, 0.14), 0 4px 10px -2px rgba(15, 23, 42, 0.07);
+  width: 290px;
+  max-width: calc(100vw - 32px);
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  z-index: 100;
+  animation: popoverFadeIn 140ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes popoverFadeIn {
+  from {
+    opacity: 0;
+    transform: translateX(-4px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0) scale(1);
+  }
+}
+
+.card-bg-popover-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.card-bg-popover-title {
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.card-bg-mode-tabs {
+  display: flex;
+  background: var(--bg-muted);
+  border-radius: var(--radius-xs);
+  padding: 2px;
+  gap: 2px;
+}
+
+.card-bg-mode-btn {
+  flex: 1;
+  height: 24px;
+  font-size: 11px;
+  font-weight: 500;
+  border-radius: var(--radius-xs);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-secondary);
+  transition: all var(--transition-fast);
+}
+
+.card-bg-mode-btn:hover {
+  color: var(--text-primary);
+}
+
+.card-bg-mode-btn.active {
+  background: var(--theme-studio-surface, #FFFFFF);
+  color: var(--brand-primary);
+  font-weight: 600;
+  box-shadow: var(--shadow-sm);
+}
+
+.card-bg-solid-section {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.solid-color-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 7px 10px;
+  background: var(--bg-muted);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  position: relative;
+  transition: all var(--transition-fast);
+}
+
+.solid-color-row:hover {
+  background: var(--bg-hover);
+  border-color: var(--border-strong);
+}
+
+.solid-color-swatch {
+  width: 22px;
+  height: 22px;
+  border-radius: var(--radius-xs);
+  border: 1px solid rgba(0, 0, 0, 0.15);
+  flex-shrink: 0;
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.2);
+}
+
+.solid-color-info {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
+.solid-color-label {
+  font-size: 9px;
+  color: var(--text-tertiary);
+  text-transform: uppercase;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  line-height: 1.1;
+}
+
+.solid-color-hex {
+  font-size: 11.5px;
+  font-weight: 600;
+  font-family: var(--font-mono);
+  color: var(--text-primary);
+  line-height: 1.2;
+}
+
+.solid-color-change-hint {
+  font-size: 10.5px;
+  color: var(--brand-primary);
+  font-weight: 500;
+}
+
+.card-bg-gradient-section {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.gradient-picker-inputs {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+}
+
+.gradient-color-field {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 6px 8px;
+  background: var(--bg-muted);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-xs);
+  cursor: pointer;
+  position: relative;
+  transition: all var(--transition-fast);
+}
+
+.gradient-color-field:hover {
+  background: var(--bg-hover);
+  border-color: var(--border-strong);
+}
+
+.gradient-swatch-box {
+  width: 18px;
+  height: 18px;
+  border-radius: 3px;
+  border: 1px solid rgba(0, 0, 0, 0.15);
+  flex-shrink: 0;
+}
+
+.gradient-color-text {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.gradient-field-label {
+  font-size: 8.5px;
+  color: var(--text-tertiary);
+  font-weight: 600;
+  text-transform: uppercase;
+  line-height: 1.1;
+}
+
+.gradient-field-hex {
+  font-size: 10.5px;
+  font-weight: 600;
+  font-family: var(--font-mono);
+  color: var(--text-primary);
+  line-height: 1.2;
+}
+
+.gradient-dir-container {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.gradient-dir-label {
+  font-size: 9.5px;
+  font-weight: 600;
+  color: var(--text-tertiary);
+  text-transform: uppercase;
+}
+
+.gradient-direction-grid {
+  display: grid;
+  grid-template-columns: repeat(8, 1fr);
+  gap: 2px;
+}
+
+.gradient-dir-btn {
+  height: 22px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  border-radius: var(--radius-xs);
+  border: 1px solid var(--border-default);
+  background: var(--theme-studio-surface, #FFFFFF);
+  color: var(--text-secondary);
+  transition: all var(--transition-fast);
+}
+
+.gradient-dir-btn:hover {
+  border-color: var(--border-strong);
+  color: var(--text-primary);
+}
+
+.gradient-dir-btn.active {
+  background: var(--brand-primary-subtle);
+  border-color: var(--brand-primary);
+  color: var(--brand-primary);
+  font-weight: 700;
+}
+
+.gradient-preview-bar {
+  height: 12px;
+  border-radius: var(--radius-xs);
+  border: 1px solid var(--border-default);
 }
 
 /* Color Setting Field */
@@ -411,13 +750,15 @@ html, body {
   height: 100vh;
   max-height: 100vh;
   overflow: hidden; /* No vertical scroll */
+  background-color: var(--color-page-background, var(--bg-canvas));
+  transition: background-color var(--transition-normal);
 }
 
 /* Header */
 .top-header {
   height: 48px;
   min-height: 48px;
-  background-color: var(--bg-header);
+  background-color: var(--theme-studio-surface, #FFFFFF);
   border-bottom: 1px solid var(--border-default);
   padding: 0 var(--space-4);
   display: flex;
@@ -480,7 +821,7 @@ html, body {
 }
 
 .theme-toggle-btn.active {
-  background-color: var(--bg-card);
+  background-color: var(--theme-studio-surface, #FFFFFF);
   color: var(--text-primary);
   font-weight: 600;
   box-shadow: var(--shadow-sm);
@@ -538,7 +879,8 @@ html, body {
   margin: 0 auto;
   box-sizing: border-box;
   overflow: hidden; /* Zero scroll */
-  transition: transform var(--transition-normal);
+  background-color: var(--color-page-background, #F8FAFC);
+  transition: transform var(--transition-normal), background-color var(--transition-normal);
   transform-origin: top center;
 }
 
@@ -575,7 +917,7 @@ html, body {
   font-size: 11px;
   font-weight: 500;
   padding: 2px 8px;
-  background-color: var(--bg-card);
+  background-color: var(--theme-studio-surface, #FFFFFF);
   border: 1px solid var(--border-default);
   border-radius: var(--radius-pill);
   color: var(--text-secondary);
@@ -612,10 +954,11 @@ html, body {
 }
 
 /* ==========================================================================
-   CARD SYSTEM
+   CARD SYSTEM - GLOBAL THEME TOKEN CONSUMER
+   Only application preview cards consume --color-card-background!
    ========================================================================== */
 .ds-card {
-  background-color: var(--bg-card);
+  background: var(--color-card-background, #FFFFFF);
   border: 1px solid var(--border-default);
   border-radius: 10px;
   padding: 10px 14px;
@@ -623,23 +966,39 @@ html, body {
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  transition: border-color var(--transition-fast), box-shadow var(--transition-fast), background-color var(--transition-normal);
+  overflow: hidden; /* Clips header cleanly within card radius */
+  position: relative;
+  transition: border-color var(--transition-fast), box-shadow var(--transition-fast), background var(--transition-normal);
 }
 
 .ds-card:hover {
   border-color: var(--border-strong);
 }
 
-.ds-card-title {
-  font-size: 14px;
-  font-weight: 600;
-  color: var(--text-primary);
-  margin-bottom: 6px;
-  letter-spacing: -0.01em;
+.ds-card-header {
+  margin: -10px -14px 6px -14px;
+  padding: 6px 14px;
+  background: var(--color-card-header, transparent);
+  border-bottom: 1px solid var(--border-default);
   display: flex;
   align-items: center;
   justify-content: space-between;
   flex-shrink: 0;
+  transition: background var(--transition-normal), border-color var(--transition-normal);
+}
+
+.ds-card-title {
+  font-size: 13.5px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin: 0;
+  padding: 0;
+  letter-spacing: -0.01em;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  line-height: 1.25;
 }
 
 /* ==========================================================================
@@ -755,7 +1114,7 @@ html, body {
   padding: 5px 8px;
   border-radius: var(--radius-sm);
   border: 1px solid var(--border-subtle);
-  background-color: var(--bg-card);
+  background-color: rgba(255, 255, 255, 0.4);
   cursor: pointer;
   transition: all var(--transition-fast);
   user-select: none;
@@ -871,7 +1230,7 @@ html, body {
   padding: 0 12px;
   border: 1px solid var(--border-default);
   border-radius: var(--radius-sm);
-  background-color: var(--bg-card);
+  background-color: #FFFFFF;
   font-size: 13px;
   color: var(--text-primary);
   transition: all var(--transition-fast);
@@ -896,7 +1255,7 @@ html, body {
   position: absolute;
   top: -7px;
   left: 8px;
-  background-color: var(--bg-card);
+  background-color: #FFFFFF;
   padding: 0 4px;
   font-size: 10.5px;
   font-weight: 600;
@@ -939,7 +1298,7 @@ html, body {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: var(--bg-card);
+  background: #FFFFFF;
   transition: all var(--transition-fast);
 }
 
@@ -969,7 +1328,7 @@ html, body {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: var(--bg-card);
+  background: #FFFFFF;
   transition: all var(--transition-fast);
 }
 
@@ -1114,7 +1473,7 @@ html, body {
 .chips-progress-container {
   display: flex;
   flex-direction: column;
-  gap: 7px;
+  gap: 6px;
 }
 
 .chips-row {
@@ -1183,7 +1542,7 @@ html, body {
 .progress-section {
   display: flex;
   flex-direction: column;
-  gap: 5px;
+  gap: 4px;
 }
 
 .progress-header {
@@ -1223,7 +1582,34 @@ html, body {
   transition: width 300ms cubic-bezier(0.4, 0, 0.2, 1), background-color var(--transition-normal);
 }
 
-/* Modal / Dropdown styling */
+/* Notification Surface Token Demo */
+.notification-banner-sample {
+  background: var(--color-notification-background, #FFFFFF);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-xs);
+  padding: 4px 8px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 11px;
+  color: var(--text-secondary);
+  transition: background var(--transition-normal);
+}
+
+.notif-left {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.notif-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background-color: var(--brand-primary);
+}
+
+/* Modal / Dropdown styling (for Export Tokens modal only) */
 .modal-overlay {
   position: fixed;
   inset: 0;
@@ -1237,12 +1623,12 @@ html, body {
 }
 
 .modal-card {
-  background-color: var(--bg-card);
+  background-color: var(--theme-studio-panel, #FFFFFF);
   border: 1px solid var(--border-default);
   border-radius: var(--radius-card);
   box-shadow: var(--shadow-dropdown);
   width: 100%;
-  max-width: 480px;
+  max-width: 500px;
   padding: var(--space-5);
   display: flex;
   flex-direction: column;
@@ -1265,9 +1651,9 @@ html, body {
   background-color: var(--bg-muted);
   padding: var(--space-3);
   border-radius: var(--radius-md);
-  font-size: 12px;
+  font-size: 11.5px;
   overflow-x: auto;
   border: 1px solid var(--border-default);
   color: var(--text-primary);
-  max-height: 200px;
+  max-height: 220px;
 }

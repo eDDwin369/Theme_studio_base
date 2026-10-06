@@ -42,10 +42,24 @@
   --color-info-border: #BAE6FD;
   --color-info-text: #0369A1;
 
-  /* Surfaces & Canvas (Neutral Light) */
+  /* Global Surface Tokens (Application Preview Only) */
+  --color-card-background: #FFFFFF;
+  --color-card-header: transparent;
+  --color-page-background: #F8FAFC;
+  --color-notification-background: #FFFFFF;
+
+  /* Theme Studio Editor Fixed Surfaces (Static Control Panel - Never consumed by preview tokens) */
+  --theme-studio-bg: #F8FAFC;
+  --theme-studio-surface: #FFFFFF;
+  --theme-studio-panel: #FFFFFF;
+  --theme-studio-control-bg: #FFFFFF;
+  --theme-studio-muted: #F1F5F9;
+  --theme-studio-border: #E2E8F0;
+
+  /* Neutral UI Surfaces */
   --bg-canvas: #F8FAFC;
-  --bg-sidebar: #FFFFFF;
-  --bg-header: #FFFFFF;
+  --bg-sidebar: var(--theme-studio-surface);
+  --bg-header: var(--theme-studio-surface);
   --bg-card: #FFFFFF;
   --bg-card-subtle: #F8FAFC;
   --bg-muted: #F1F5F9;
