@@ -20,51 +20,30 @@ import {
   Copy,
   X,
   ExternalLink,
-  Sparkles
+  Sparkles,
+  Edit2,
+  ChevronUp,
+  Maximize2,
+  Settings
 } from 'lucide-react';
+import oomnieyeLogo from './assets/oomnieye-logo.png';
+import allcadLogo from './assets/allcad-logo.png';
 import './App.css';
 
-// ---------------------------------------------------------
-// Theme Presets Specification
-// ---------------------------------------------------------
-const THEME_PRESETS = {
-  blue: {
-    id: 'blue',
-    name: 'Corporate Blue',
-    brandPrimary: '#4F6BFF',
-    brandSecondary: '#25C6E8',
-    brandHighlight: '#6B7FF2',
-    shades: [
-      '#EEF2FF',
-      '#E0E7FF',
-      '#C7D2FE',
-      '#A5B4FC',
-      '#818CF8',
-      '#6366F1',
-      '#4F6BFF',
-      '#4338CA',
-      '#3730A3',
-    ],
-  },
-  green: {
-    id: 'green',
-    name: 'Corporate Green',
-    brandPrimary: '#10B981',
-    brandSecondary: '#F59E0B',
-    brandHighlight: '#2EE59D',
-    shades: [
-      '#ECFDF5',
-      '#D1FAE5',
-      '#A7F3D0',
-      '#6EE7B7',
-      '#34D399',
-      '#10B981',
-      '#059669',
-      '#047857',
-      '#064E3B',
-    ],
-  },
-};
+import {
+  COLOR_SCHEMES,
+  APPEARANCE_MODES,
+  deriveTheme,
+  getCardShadowForTheme,
+  getCardBorderForTheme,
+  getCardHeaderStylesForTheme,
+  getNestedStylesForTheme,
+  getCardTintOverlayForTheme,
+  hexToRgba,
+} from './themeTokens';
+
+// Theme Presets Specification (Centralized Brand Palettes)
+const THEME_PRESETS = COLOR_SCHEMES;
 
 // Gradient directions for Card Background
 const GRADIENT_DIRECTIONS = [
@@ -78,26 +57,17 @@ const GRADIENT_DIRECTIONS = [
   { label: '↖', value: 'to top left', title: 'To Top Left' },
 ];
 
-// Utility to convert hex to RGBA
-function hexToRgba(hex, alpha = 1) {
-  if (!hex || typeof hex !== 'string') return `rgba(79, 107, 255, ${alpha})`;
-  let c = hex.replace('#', '');
-  if (c.length === 3) c = c.split('').map((x) => x + x).join('');
-  const r = parseInt(c.substring(0, 2), 16) || 0;
-  const g = parseInt(c.substring(2, 4), 16) || 0;
-  const b = parseInt(c.substring(4, 6), 16) || 0;
-  return `rgba(${r}, ${g}, ${b}, ${alpha})`;
-}
-
 export default function App() {
-  // Theme Presets (Blue vs Green)
+  // Color Scheme Preset (Corporate Blue vs Corporate Green)
   const [activePreset, setActivePreset] = useState('blue');
 
-  // Theme & Brand Color State
+  // Appearance Mode (Light vs Dark)
   const [themeMode, setThemeMode] = useState('light');
-  const [brandPrimary, setBrandPrimary] = useState(THEME_PRESETS.blue.brandPrimary);
-  const [brandSecondary, setBrandSecondary] = useState(THEME_PRESETS.blue.brandSecondary);
-  const [brandHighlight, setBrandHighlight] = useState(THEME_PRESETS.blue.brandHighlight);
+  const isDarkMode = themeMode === 'dark';
+
+  const [brandPrimary, setBrandPrimary] = useState(THEME_PRESETS.blue.primary);
+  const [brandSecondary, setBrandSecondary] = useState(THEME_PRESETS.blue.secondary);
+  const [brandHighlight, setBrandHighlight] = useState(THEME_PRESETS.blue.highlight);
   const [currentShades, setCurrentShades] = useState(THEME_PRESETS.blue.shades);
 
   // Surface Theme Tokens (with Card Background Global Token)
@@ -130,8 +100,38 @@ export default function App() {
   const [textDisabled, setTextDisabled] = useState('#CBD5E1');
 
   // Active Navigation & Subtabs
-  const [activeNav, setActiveNav] = useState('Colour Settings');
+  const [activeNav, setActiveNav] = useState('Cards'); // Default to Cards for Theme Preview!
   const [activeColorTab, setActiveColorTab] = useState('Status'); // Default to Status to show approved 2x2 grid!
+
+  // Cards Theme Studio Component States (Restored Functionality)
+  const [cardTab, setCardTab] = useState('Style'); // 'Style' | 'Header' | 'Nested' | 'Tint'
+
+  // Tab 1: Style (Outlined | Soft | Floating)
+  const [cardVariant, setCardVariant] = useState('Soft'); // 'Outlined' | 'Soft' | 'Floating'
+  const [cardShadowDepth, setCardShadowDepth] = useState(20);
+  const [shadowDepthAuto, setShadowDepthAuto] = useState(false);
+
+  // Tab 2: Header (Plain | Tinted | Accent)
+  const [cardHeaderStyle, setCardHeaderStyle] = useState('Plain'); // 'Plain' | 'Tinted' | 'Accent'
+  const [cardHeaderStrength, setCardHeaderStrength] = useState(0);
+  const [headerStrengthAuto, setHeaderStrengthAuto] = useState(true);
+
+  // Tab 3: Nested (Recessed | Flat | Raised)
+  const [cardNestedStyle, setCardNestedStyle] = useState('Recessed'); // 'Recessed' | 'Flat' | 'Raised'
+  const [cardNestedDepth, setCardNestedDepth] = useState(6);
+  const [nestedDepthAuto, setNestedDepthAuto] = useState(true);
+
+  // Tab 4: Tint (None | Low | High)
+  const [cardTint, setCardTint] = useState('None'); // 'None' | 'Low' | 'High'
+  const [cardTintIntensity, setCardTintIntensity] = useState(0);
+  const [tintIntensityAuto, setTintIntensityAuto] = useState(true);
+
+  // Theme-aware helper delegates
+  const getCardShadow = (variant, depth) => getCardShadowForTheme(variant, depth, isDarkMode);
+  const getCardBorder = (variant) => getCardBorderForTheme(variant, isDarkMode);
+  const getCardHeaderStyles = (style, strength) => getCardHeaderStylesForTheme(style, strength, brandPrimary, isDarkMode);
+  const getNestedStyles = (style, depth) => getNestedStylesForTheme(style, depth, isDarkMode);
+  const getCardTintOverlay = (tint, intensity) => getCardTintOverlayForTheme(tint, intensity, brandPrimary, brandSecondary, isDarkMode);
 
   // Header & Canvas Controls
   const [zoomLevel, setZoomLevel] = useState(100);
@@ -153,78 +153,131 @@ export default function App() {
   // Revenue Goal Progress State
   const [progressVal, setProgressVal] = useState(74);
 
-  // Apply Theme Preset
+  // Apply Theme Preset (Corporate Blue vs Corporate Green)
   const applyPreset = (presetKey) => {
     const preset = THEME_PRESETS[presetKey];
     if (!preset) return;
     setActivePreset(presetKey);
-    setBrandPrimary(preset.brandPrimary);
-    setBrandSecondary(preset.brandSecondary);
-    setBrandHighlight(preset.brandHighlight);
+    setBrandPrimary(preset.primary || preset.brandPrimary);
+    setBrandSecondary(preset.secondary || preset.brandSecondary);
+    setBrandHighlight(preset.highlight || preset.brandHighlight);
     setCurrentShades(preset.shades);
+  };
+
+  // Switch Appearance Mode (Light vs Dark) independently
+  const handleToggleThemeMode = (newMode) => {
+    if (newMode === themeMode) return;
+    setThemeMode(newMode);
+
+    // If cardBgSolid is currently default, transition to new mode's default
+    if (cardBgSolid === '#FFFFFF' && newMode === 'dark') {
+      setCardBgSolid('#181D27');
+      setCardBgGradientStart('#181D27');
+      setCardBgGradientEnd('#202632');
+    } else if (cardBgSolid === '#181D27' && newMode === 'light') {
+      setCardBgSolid('#FFFFFF');
+      setCardBgGradientStart('#FFFFFF');
+      setCardBgGradientEnd('#F5F7FF');
+    }
+
+    if (pageBg === '#F8FAFC' && newMode === 'dark') {
+      setPageBg('#11151D');
+    } else if (pageBg === '#11151D' && newMode === 'light') {
+      setPageBg('#F8FAFC');
+    }
   };
 
   // Synchronize CSS custom properties whenever tokens change
   useEffect(() => {
     const root = document.documentElement;
     root.setAttribute('data-theme', themeMode);
+    root.setAttribute('data-color-scheme', activePreset);
+
+    // Centralized Design System Theme Tokens
+    const tokens = deriveTheme(activePreset, themeMode);
 
     // Brand Tokens
-    root.style.setProperty('--brand-primary', brandPrimary);
-    root.style.setProperty('--brand-secondary', brandSecondary);
-    root.style.setProperty('--brand-highlight', brandHighlight);
+    root.style.setProperty('--brand-primary', tokens.accent);
+    root.style.setProperty('--brand-primary-hover', tokens.accentHover);
+    root.style.setProperty('--brand-primary-active', tokens.accentActive);
+    root.style.setProperty('--brand-primary-subtle', tokens.accentSoft);
+    root.style.setProperty('--brand-primary-subtle-hover', tokens.accentSoftHover);
+    root.style.setProperty('--brand-primary-border', tokens.accentBorder);
+    root.style.setProperty('--brand-secondary', tokens.accentSecondary);
+    root.style.setProperty('--brand-highlight', tokens.accentHighlight);
+    root.style.setProperty('--brand-secondary-subtle', hexToRgba(tokens.accentSecondary, themeMode === 'dark' ? 0.18 : 0.12));
+    root.style.setProperty('--brand-highlight-subtle', hexToRgba(tokens.accentHighlight, themeMode === 'dark' ? 0.18 : 0.12));
+    root.style.setProperty('--focus-ring', `0 0 0 3px ${hexToRgba(tokens.accent, 0.22)}`);
 
-    root.style.setProperty('--brand-primary-subtle', hexToRgba(brandPrimary, 0.08));
-    root.style.setProperty('--brand-primary-subtle-hover', hexToRgba(brandPrimary, 0.14));
-    root.style.setProperty('--brand-primary-border', hexToRgba(brandPrimary, 0.28));
-    root.style.setProperty('--brand-secondary-subtle', hexToRgba(brandSecondary, 0.12));
-    root.style.setProperty('--brand-highlight-subtle', hexToRgba(brandHighlight, 0.12));
-    root.style.setProperty('--focus-ring', `0 0 0 3px ${hexToRgba(brandPrimary, 0.2)}`);
+    // Theme Studio Editor Fixed Surfaces
+    root.style.setProperty('--theme-studio-bg', tokens.themeStudioBg);
+    root.style.setProperty('--theme-studio-surface', tokens.themeStudioSurface);
+    root.style.setProperty('--theme-studio-panel', tokens.themeStudioPanel);
+    root.style.setProperty('--theme-studio-control-bg', tokens.themeStudioControlBg);
+    root.style.setProperty('--theme-studio-muted', tokens.themeStudioMuted);
+    root.style.setProperty('--theme-studio-border', tokens.themeStudioBorder);
+
+    // Standard UI Surfaces
+    root.style.setProperty('--bg-canvas', tokens.background);
+    root.style.setProperty('--bg-sidebar', tokens.sidebar);
+    root.style.setProperty('--bg-header', tokens.themeStudioSurface);
+    root.style.setProperty('--bg-card', tokens.cardBackground);
+    root.style.setProperty('--bg-card-subtle', tokens.surfaceElevated);
+    root.style.setProperty('--bg-muted', tokens.themeStudioMuted);
+    root.style.setProperty('--bg-hover', themeMode === 'dark' ? '#1A202C' : '#F8FAFC');
+    root.style.setProperty('--bg-active', themeMode === 'dark' ? '#242D3D' : '#EEF2F6');
+
+    // Borders
+    root.style.setProperty('--border-subtle', tokens.borderSubtle);
+    root.style.setProperty('--border-default', tokens.border);
+    root.style.setProperty('--border-strong', tokens.borderStrong);
+
+    // Text Tokens
+    root.style.setProperty('--text-primary', tokens.textPrimary);
+    root.style.setProperty('--text-secondary', tokens.textSecondary);
+    root.style.setProperty('--text-tertiary', tokens.textTertiary);
+    root.style.setProperty('--text-disabled', tokens.textDisabled);
+
+    // Shadows
+    root.style.setProperty('--shadow-card', tokens.shadowCard);
+    root.style.setProperty('--shadow-dropdown', tokens.shadowDropdown);
+
+    // Semantic Status Tokens
+    root.style.setProperty('--color-success', tokens.statusSuccess);
+    root.style.setProperty('--color-success-bg', tokens.statusSuccessBg);
+    root.style.setProperty('--color-success-border', tokens.statusSuccessBorder);
+    root.style.setProperty('--color-success-text', tokens.statusSuccessText);
+
+    root.style.setProperty('--color-warning', tokens.statusWarning);
+    root.style.setProperty('--color-warning-bg', tokens.statusWarningBg);
+    root.style.setProperty('--color-warning-border', tokens.statusWarningBorder);
+    root.style.setProperty('--color-warning-text', tokens.statusWarningText);
+
+    root.style.setProperty('--color-info', tokens.statusInfo);
+    root.style.setProperty('--color-info-bg', tokens.statusInfoBg);
+    root.style.setProperty('--color-info-border', tokens.statusInfoBorder);
+    root.style.setProperty('--color-info-text', tokens.statusInfoText);
+
+    root.style.setProperty('--color-error', tokens.statusError);
+    root.style.setProperty('--color-error-bg', tokens.statusErrorBg);
+    root.style.setProperty('--color-error-border', tokens.statusErrorBorder);
+    root.style.setProperty('--color-error-text', tokens.statusErrorText);
 
     // GLOBAL CARD BACKGROUND PREVIEW TOKEN
-    // Only consumed by actual application preview cards (.ds-card). Theme Studio remains static!
+    const effectiveCardBg = (cardBgSolid === '#FFFFFF' || cardBgSolid === '#181D27')
+      ? tokens.cardBackground
+      : cardBgSolid;
     const cardBgValue = cardBgType === 'solid'
-      ? cardBgSolid
+      ? effectiveCardBg
       : `linear-gradient(${cardBgGradientDir}, ${cardBgGradientStart}, ${cardBgGradientEnd})`;
 
     root.style.setProperty('--color-card-background', cardBgValue);
-
-    // Other Preview Surface Tokens
     root.style.setProperty('--color-card-header', cardHeaderBg);
-    root.style.setProperty('--color-page-background', pageBg);
-    root.style.setProperty('--color-notification-background', notificationBg);
-
-    // Semantic Status Tokens
-    root.style.setProperty('--color-success', statusSuccess);
-    root.style.setProperty('--color-success-bg', hexToRgba(statusSuccess, 0.12));
-    root.style.setProperty('--color-success-border', hexToRgba(statusSuccess, 0.3));
-    root.style.setProperty('--color-success-text', statusSuccess);
-
-    root.style.setProperty('--color-warning', statusWarning);
-    root.style.setProperty('--color-warning-bg', hexToRgba(statusWarning, 0.12));
-    root.style.setProperty('--color-warning-border', hexToRgba(statusWarning, 0.3));
-    root.style.setProperty('--color-warning-text', statusWarning);
-
-    root.style.setProperty('--color-info', statusInfo);
-    root.style.setProperty('--color-info-bg', hexToRgba(statusInfo, 0.12));
-    root.style.setProperty('--color-info-border', hexToRgba(statusInfo, 0.3));
-    root.style.setProperty('--color-info-text', statusInfo);
-
-    root.style.setProperty('--color-error', statusError);
-    root.style.setProperty('--color-error-bg', hexToRgba(statusError, 0.12));
-    root.style.setProperty('--color-error-border', hexToRgba(statusError, 0.3));
-    root.style.setProperty('--color-error-text', statusError);
-
-    // Text Tokens
-    root.style.setProperty('--text-primary', textPrimary);
-    root.style.setProperty('--text-secondary', textSecondary);
-    root.style.setProperty('--text-tertiary', textTertiary);
-    root.style.setProperty('--text-disabled', textDisabled);
+    root.style.setProperty('--color-page-background', tokens.previewBackground);
+    root.style.setProperty('--color-notification-background', tokens.surfaceElevated);
   }, [
     themeMode,
-    brandPrimary,
-    brandSecondary,
-    brandHighlight,
+    activePreset,
     cardBgType,
     cardBgSolid,
     cardBgGradientStart,
@@ -233,43 +286,36 @@ export default function App() {
     cardHeaderBg,
     pageBg,
     notificationBg,
-    statusSuccess,
-    statusWarning,
-    statusInfo,
-    statusError,
-    textPrimary,
-    textSecondary,
-    textTertiary,
-    textDisabled,
   ]);
 
   // Reset to Active Preset Defaults
   const handleReset = () => {
     const preset = THEME_PRESETS[activePreset];
-    setBrandPrimary(preset.brandPrimary);
-    setBrandSecondary(preset.brandSecondary);
-    setBrandHighlight(preset.brandHighlight);
+    setBrandPrimary(preset.primary || preset.brandPrimary);
+    setBrandSecondary(preset.secondary || preset.brandSecondary);
+    setBrandHighlight(preset.highlight || preset.brandHighlight);
     setCurrentShades(preset.shades);
 
+    const isDark = themeMode === 'dark';
     setCardBgType('solid');
-    setCardBgSolid('#FFFFFF');
-    setCardBgGradientStart('#FFFFFF');
-    setCardBgGradientEnd('#F5F7FF');
+    setCardBgSolid(isDark ? '#181D27' : '#FFFFFF');
+    setCardBgGradientStart(isDark ? '#181D27' : '#FFFFFF');
+    setCardBgGradientEnd(isDark ? '#202632' : '#F5F7FF');
     setCardBgGradientDir('to right');
 
     setCardHeaderBg('transparent');
-    setPageBg('#F8FAFC');
-    setNotificationBg('#FFFFFF');
+    setPageBg(isDark ? '#11151D' : '#F8FAFC');
+    setNotificationBg(isDark ? '#181D27' : '#FFFFFF');
 
     setStatusSuccess('#10B981');
     setStatusWarning('#F59E0B');
     setStatusInfo('#0284C7');
     setStatusError('#EF4444');
 
-    setTextPrimary('#0F172A');
-    setTextSecondary('#475569');
-    setTextTertiary('#94A3B8');
-    setTextDisabled('#CBD5E1');
+    setTextPrimary(isDark ? '#F8FAFC' : '#0F172A');
+    setTextSecondary('#94A3B8');
+    setTextTertiary(isDark ? '#64748B' : '#94A3B8');
+    setTextDisabled(isDark ? '#475569' : '#CBD5E1');
 
     setZoomLevel(100);
     setSelectedItems([0, 4]);
@@ -288,8 +334,17 @@ export default function App() {
     }
   };
 
+  // Toggle Fullscreen Mode
+  const handleToggleFullscreen = () => {
+    if (!document.fullscreenElement) {
+      document.documentElement.requestFullscreen().catch(() => {});
+    } else if (document.exitFullscreen) {
+      document.exitFullscreen().catch(() => {});
+    }
+  };
+
   // Toggle anchored Card Background popover beside the trigger control
-  const handleToggleCardBgPopover = (e) => {
+  const handleToggleCardBgPopover = (e, customTarget) => {
     if (e) {
       e.preventDefault();
       e.stopPropagation();
@@ -298,8 +353,9 @@ export default function App() {
       setShowCardBgPopover(false);
       return;
     }
-    if (cardBgBtnRef.current) {
-      const rect = cardBgBtnRef.current.getBoundingClientRect();
+    const target = customTarget || (e && e.currentTarget) || cardBgBtnRef.current;
+    if (target) {
+      const rect = target.getBoundingClientRect();
       const popoverWidth = 290;
       const popoverHeight = cardBgType === 'solid' ? 140 : 255;
       const viewportWidth = window.innerWidth;
@@ -398,37 +454,43 @@ export default function App() {
 
   // Copy CSS Tokens to Clipboard
   const handleCopyTokens = () => {
+    const tokensObj = deriveTheme(activePreset, themeMode);
     const tokens = `/* ==========================================================================
-   Enterprise SaaS Design System Tokens (${THEME_PRESETS[activePreset].name})
+   Enterprise SaaS Design System Tokens
+   Theme: ${THEME_PRESETS[activePreset].name} · Appearance: ${themeMode.toUpperCase()}
    ========================================================================== */
 :root {
   /* Brand Tokens */
-  --brand-primary: ${brandPrimary};
-  --brand-secondary: ${brandSecondary};
-  --brand-highlight: ${brandHighlight};
+  --brand-primary: ${tokensObj.accent};
+  --brand-secondary: ${tokensObj.accentSecondary};
+  --brand-highlight: ${tokensObj.accentHighlight};
 
   /* Global Surface Tokens */
-  --color-card-background: ${currentCardBgCss};
+  --color-card-background: ${tokensObj.cardBackground};
   --color-card-header: ${cardHeaderBg};
-  --color-page-background: ${pageBg};
-  --color-notification-background: ${notificationBg};
+  --color-page-background: ${tokensObj.previewBackground};
+  --color-notification-background: ${tokensObj.surfaceElevated};
+
+  /* Borders */
+  --border-default: ${tokensObj.border};
+  --border-strong: ${tokensObj.borderStrong};
 
   /* Semantic Status Tokens */
-  --color-success: ${statusSuccess};
-  --color-warning: ${statusWarning};
-  --color-info: ${statusInfo};
-  --color-error: ${statusError};
+  --color-success: ${tokensObj.statusSuccess};
+  --color-warning: ${tokensObj.statusWarning};
+  --color-info: ${tokensObj.statusInfo};
+  --color-error: ${tokensObj.statusError};
 
   /* Typography / Text Tokens */
-  --text-primary: ${textPrimary};
-  --text-secondary: ${textSecondary};
-  --text-tertiary: ${textTertiary};
-  --text-disabled: ${textDisabled};
+  --text-primary: ${tokensObj.textPrimary};
+  --text-secondary: ${tokensObj.textSecondary};
+  --text-tertiary: ${tokensObj.textTertiary};
+  --text-disabled: ${tokensObj.textDisabled};
 
   /* Standard Metrics */
   --radius-sm: 6px;
   --radius-md: 8px;
-  --radius-card: 10px;
+  --radius-card: 14px;
   --font-sans: 'Inter', sans-serif;
 }`;
     navigator.clipboard.writeText(tokens);
@@ -457,8 +519,74 @@ export default function App() {
   ];
 
   return (
-    <div className="app-container">
+    <div className="app-root">
       {/* ====================================================================
+          GLOBAL TOP APP HEADER (OOMNIEYE / ALLCAD)
+          Matches Reference Header Pixel-for-Pixel
+          ==================================================================== */}
+      <header className="global-app-header" aria-label="Application Header">
+        <div className="global-header-left">
+          <img
+            src={oomnieyeLogo}
+            alt="OomniEye Crystal Ball Command Center"
+            className="global-header-logo-oomnieye"
+          />
+        </div>
+
+        <div className="global-header-center">
+          <img
+            src={allcadLogo}
+            alt="AllCAD Innovative Engineering Solutions"
+            className="global-header-logo-allcad"
+          />
+        </div>
+
+        <div className="global-header-right">
+          <button
+            className="global-header-icon-btn"
+            onClick={() => handleToggleThemeMode(themeMode === 'light' ? 'dark' : 'light')}
+            title={`Switch to ${themeMode === 'light' ? 'dark' : 'light'} mode`}
+            aria-label="Toggle dark/light mode"
+          >
+            {themeMode === 'light' ? <Moon size={16} /> : <Sun size={16} />}
+          </button>
+          <button
+            className="global-header-icon-btn"
+            onClick={handleToggleFullscreen}
+            title="Toggle fullscreen"
+            aria-label="Toggle fullscreen"
+          >
+            <Maximize2 size={16} />
+          </button>
+          <button
+            className="global-header-icon-btn"
+            title="Theme Settings"
+            aria-label="Settings"
+            onClick={() => setActiveNav('Theme Settings')}
+          >
+            <Settings size={16} />
+          </button>
+          <button
+            className="global-header-icon-btn"
+            title="Notifications"
+            aria-label="Notifications"
+            onClick={() => setActiveNav('Notifications')}
+          >
+            <Bell size={16} />
+            <span className="global-header-notif-dot" />
+          </button>
+          <div
+            className="global-header-avatar"
+            title="User Profile: Administrator"
+            aria-label="User Profile"
+          >
+            <span>A</span>
+          </div>
+        </div>
+      </header>
+
+      <div className="app-container">
+        {/* ====================================================================
           SIDEBAR NAVIGATION
           ==================================================================== */}
       <aside className="sidebar" aria-label="Design System Navigation">
@@ -487,7 +615,7 @@ export default function App() {
             </button>
             <button
               className="icon-btn"
-              onClick={() => setThemeMode(themeMode === 'light' ? 'dark' : 'light')}
+              onClick={() => handleToggleThemeMode(themeMode === 'light' ? 'dark' : 'light')}
               title={`Switch to ${themeMode === 'light' ? 'dark' : 'light'} mode`}
               aria-label="Toggle dark/light mode"
             >
@@ -519,8 +647,18 @@ export default function App() {
                   </div>
 
                   <div className="nav-item-actions">
-                    <MessageSquare size={13} className="sub-icon" title="View comments" />
-                    <Info size={13} className="sub-icon" title="Component documentation" />
+                    {item.id === 'Cards' && isActive ? (
+                      <>
+                        <Monitor size={13} className="sub-icon" title="Preview mode" />
+                        <Info size={13} className="sub-icon" title="Component documentation" />
+                        <span className="chevron-up-icon" title="Active section">▲</span>
+                      </>
+                    ) : (
+                      <>
+                        <MessageSquare size={13} className="sub-icon" title="View comments" />
+                        <Info size={13} className="sub-icon" title="Component documentation" />
+                      </>
+                    )}
                   </div>
                 </div>
 
@@ -588,6 +726,51 @@ export default function App() {
                                 <span className="preset-mini-swatch" style={{ backgroundColor: '#10B981' }} />
                                 <span className="preset-mini-swatch" style={{ backgroundColor: '#F59E0B' }} />
                                 <span className="preset-mini-swatch" style={{ backgroundColor: '#2EE59D' }} />
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Appearance Mode Selector */}
+                        <div className="theme-preset-section" style={{ marginTop: '8px' }}>
+                          <div className="theme-preset-title">
+                            <span>Appearance Mode</span>
+                          </div>
+
+                          <div className="theme-preset-cards">
+                            {/* Light Mode Card */}
+                            <div
+                              className={`theme-preset-card ${themeMode === 'light' ? 'active' : ''}`}
+                              onClick={() => handleToggleThemeMode('light')}
+                              role="button"
+                              tabIndex={0}
+                            >
+                              <div className="theme-preset-card-header">
+                                <span className="theme-preset-name">Light</span>
+                                {themeMode === 'light' && <Check size={11} color="var(--brand-primary)" />}
+                              </div>
+                              <div className="theme-preset-swatches">
+                                <span className="preset-mini-swatch" style={{ backgroundColor: '#FFFFFF', border: '1px solid #E2E8F0' }} />
+                                <span className="preset-mini-swatch" style={{ backgroundColor: '#F8FAFC', border: '1px solid #E2E8F0' }} />
+                                <span className="preset-mini-swatch" style={{ backgroundColor: '#F1F5F9', border: '1px solid #E2E8F0' }} />
+                              </div>
+                            </div>
+
+                            {/* Dark Mode Card */}
+                            <div
+                              className={`theme-preset-card ${themeMode === 'dark' ? 'active' : ''}`}
+                              onClick={() => handleToggleThemeMode('dark')}
+                              role="button"
+                              tabIndex={0}
+                            >
+                              <div className="theme-preset-card-header">
+                                <span className="theme-preset-name">Dark</span>
+                                {themeMode === 'dark' && <Check size={11} color="var(--brand-primary)" />}
+                              </div>
+                              <div className="theme-preset-swatches">
+                                <span className="preset-mini-swatch" style={{ backgroundColor: '#0F1117', border: '1px solid #2A3240' }} />
+                                <span className="preset-mini-swatch" style={{ backgroundColor: '#181D27', border: '1px solid #2A3240' }} />
+                                <span className="preset-mini-swatch" style={{ backgroundColor: '#202632', border: '1px solid #2A3240' }} />
                               </div>
                             </div>
                           </div>
@@ -889,6 +1072,263 @@ export default function App() {
                     )}
                   </div>
                 )}
+
+                {/* Subpanel for Cards (Theme Studio) */}
+                {isActive && item.id === 'Cards' && (
+                  <div className="sidebar-expanded-section">
+                    {/* Subtabs: Style | Header | Nested | Tint */}
+                    <div className="cards-subtabs-row" role="tablist">
+                      {['Style', 'Header', 'Nested', 'Tint'].map((tab) => (
+                        <button
+                          key={tab}
+                          type="button"
+                          role="tab"
+                          aria-selected={cardTab === tab}
+                          className={`cards-subtab-btn ${cardTab === tab ? 'active' : ''}`}
+                          onClick={() => setCardTab(tab)}
+                        >
+                          {tab}
+                        </button>
+                      ))}
+                    </div>
+
+                    {/* Tab 1: Style */}
+                    {cardTab === 'Style' && (
+                      <div className="cards-tab-content">
+                        {/* Outlined / Soft / Floating pills */}
+                        <div className="card-variant-buttons" role="group" aria-label="Card Variant Style">
+                          {['Outlined', 'Soft', 'Floating'].map((variant) => (
+                            <button
+                              key={variant}
+                              type="button"
+                              className={`card-variant-btn ${cardVariant === variant ? 'active' : ''}`}
+                              onClick={() => setCardVariant(variant)}
+                            >
+                              {variant}
+                            </button>
+                          ))}
+                        </div>
+
+                        {/* Shadow Depth Section */}
+                        <div className="shadow-depth-section">
+                          <div className="shadow-depth-header">
+                            <span className="shadow-depth-label">
+                              Shadow depth <Info size={11} className="help-icon" title="Adjust card elevation shadow depth" />
+                            </span>
+                            <span
+                              className={`shadow-depth-badge ${!shadowDepthAuto ? 'edited' : ''}`}
+                              title="Click to toggle Auto / Manual"
+                              onClick={() => setShadowDepthAuto(!shadowDepthAuto)}
+                            >
+                              {shadowDepthAuto ? `Auto (${cardShadowDepth}px)` : `${cardShadowDepth}px`} <Edit2 size={10} />
+                            </span>
+                          </div>
+                          <input
+                            type="range"
+                            min="0"
+                            max="60"
+                            value={cardShadowDepth}
+                            onChange={(e) => {
+                              setCardShadowDepth(Number(e.target.value));
+                              setShadowDepthAuto(false);
+                            }}
+                            className="shadow-range-slider"
+                            aria-label="Card shadow depth"
+                            style={{
+                              background: `linear-gradient(to right, var(--brand-primary) 0%, var(--brand-primary) ${(cardShadowDepth / 60) * 100}%, var(--border-default) ${(cardShadowDepth / 60) * 100}%, var(--border-default) 100%)`
+                            }}
+                          />
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Tab 2: Header */}
+                    {cardTab === 'Header' && (
+                      <div className="cards-tab-content">
+                        {/* Plain / Tinted / Accent pills */}
+                        <div className="card-variant-buttons" role="group" aria-label="Card Header Style">
+                          {['Plain', 'Tinted', 'Accent'].map((hOpt) => (
+                            <button
+                              key={hOpt}
+                              type="button"
+                              className={`card-variant-btn ${cardHeaderStyle === hOpt ? 'active' : ''}`}
+                              onClick={() => {
+                                setCardHeaderStyle(hOpt);
+                                if (hOpt === 'Plain') {
+                                   setCardHeaderStrength(0);
+                                   setHeaderStrengthAuto(true);
+                                } else if (hOpt === 'Tinted') {
+                                   setCardHeaderStrength(35);
+                                   setHeaderStrengthAuto(true);
+                                } else if (hOpt === 'Accent') {
+                                   setCardHeaderStrength(85);
+                                   setHeaderStrengthAuto(true);
+                                }
+                              }}
+                            >
+                              {hOpt}
+                            </button>
+                          ))}
+                        </div>
+
+                        {/* Header Strength Slider */}
+                        <div className="shadow-depth-section">
+                          <div className="shadow-depth-header">
+                            <span className="shadow-depth-label">
+                              Header strength <Info size={11} className="help-icon" title="Adjust header appearance intensity" />
+                            </span>
+                            <span
+                              className={`shadow-depth-badge ${!headerStrengthAuto ? 'edited' : ''}`}
+                              title="Click to toggle Auto / Manual"
+                              onClick={() => setHeaderStrengthAuto(!headerStrengthAuto)}
+                            >
+                              {headerStrengthAuto ? `Auto (${cardHeaderStrength}%)` : `${cardHeaderStrength}%`} <Edit2 size={10} />
+                            </span>
+                          </div>
+                          <input
+                            type="range"
+                            min="0"
+                            max="100"
+                            value={cardHeaderStrength}
+                            onChange={(e) => {
+                              setCardHeaderStrength(Number(e.target.value));
+                              setHeaderStrengthAuto(false);
+                            }}
+                            className="shadow-range-slider"
+                            aria-label="Header strength"
+                            style={{
+                              background: `linear-gradient(to right, var(--brand-primary) 0%, var(--brand-primary) ${cardHeaderStrength}%, var(--border-default) ${cardHeaderStrength}%, var(--border-default) 100%)`
+                            }}
+                          />
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Tab 3: Nested */}
+                    {cardTab === 'Nested' && (
+                      <div className="cards-tab-content">
+                        {/* Recessed / Flat / Raised pills */}
+                        <div className="card-variant-buttons" role="group" aria-label="Nested Element Style">
+                          {['Recessed', 'Flat', 'Raised'].map((nOpt) => (
+                            <button
+                              key={nOpt}
+                              type="button"
+                              className={`card-variant-btn ${cardNestedStyle === nOpt ? 'active' : ''}`}
+                              onClick={() => {
+                                setCardNestedStyle(nOpt);
+                                if (nOpt === 'Flat') {
+                                   setCardNestedDepth(0);
+                                   setNestedDepthAuto(true);
+                                } else if (nOpt === 'Recessed') {
+                                   setCardNestedDepth(6);
+                                   setNestedDepthAuto(true);
+                                } else if (nOpt === 'Raised') {
+                                   setCardNestedDepth(6);
+                                   setNestedDepthAuto(true);
+                                }
+                              }}
+                            >
+                              {nOpt}
+                            </button>
+                          ))}
+                        </div>
+
+                        {/* Nested Depth Slider */}
+                        <div className="shadow-depth-section">
+                          <div className="shadow-depth-header">
+                            <span className="shadow-depth-label">
+                              Nested depth <Info size={11} className="help-icon" title="Adjust nested elements depth" />
+                            </span>
+                            <span
+                              className={`shadow-depth-badge ${!nestedDepthAuto ? 'edited' : ''}`}
+                              title="Click to toggle Auto / Manual"
+                              onClick={() => setNestedDepthAuto(!nestedDepthAuto)}
+                            >
+                              {nestedDepthAuto ? `Auto (${cardNestedDepth}px)` : `${cardNestedDepth}px`} <Edit2 size={10} />
+                            </span>
+                          </div>
+                          <input
+                            type="range"
+                            min="0"
+                            max="16"
+                            value={cardNestedDepth}
+                            onChange={(e) => {
+                              setCardNestedDepth(Number(e.target.value));
+                              setNestedDepthAuto(false);
+                            }}
+                            className="shadow-range-slider"
+                            aria-label="Nested depth"
+                            style={{
+                              background: `linear-gradient(to right, var(--brand-primary) 0%, var(--brand-primary) ${(cardNestedDepth / 16) * 100}%, var(--border-default) ${(cardNestedDepth / 16) * 100}%, var(--border-default) 100%)`
+                            }}
+                          />
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Tab 4: Tint */}
+                    {cardTab === 'Tint' && (
+                      <div className="cards-tab-content">
+                        {/* None / Low / High pills */}
+                        <div className="card-variant-buttons" role="group" aria-label="Card Tint Option">
+                          {['None', 'Low', 'High'].map((tOpt) => (
+                            <button
+                              key={tOpt}
+                              type="button"
+                              className={`card-variant-btn ${cardTint === tOpt ? 'active' : ''}`}
+                              onClick={() => {
+                                setCardTint(tOpt);
+                                if (tOpt === 'None') {
+                                   setCardTintIntensity(0);
+                                   setTintIntensityAuto(true);
+                                } else if (tOpt === 'Low') {
+                                   setCardTintIntensity(40);
+                                   setTintIntensityAuto(true);
+                                } else if (tOpt === 'High') {
+                                   setCardTintIntensity(100);
+                                   setTintIntensityAuto(true);
+                                }
+                              }}
+                            >
+                              {tOpt}
+                            </button>
+                          ))}
+                        </div>
+
+                        {/* Tint Intensity Slider */}
+                        <div className="shadow-depth-section">
+                          <div className="shadow-depth-header">
+                            <span className="shadow-depth-label">
+                              Tint intensity <Info size={11} className="help-icon" title="Adjust theme tint intensity" />
+                            </span>
+                            <span
+                              className={`shadow-depth-badge ${!tintIntensityAuto ? 'edited' : ''}`}
+                              title="Click to toggle Auto / Manual"
+                              onClick={() => setTintIntensityAuto(!tintIntensityAuto)}
+                            >
+                              {tintIntensityAuto ? `Auto (${cardTintIntensity}%)` : `${cardTintIntensity}%`} <Edit2 size={10} />
+                            </span>
+                          </div>
+                          <input
+                            type="range"
+                            min="0"
+                            max="100"
+                            value={cardTintIntensity}
+                            onChange={(e) => {
+                              setCardTintIntensity(Number(e.target.value));
+                              setTintIntensityAuto(false);
+                            }}
+                            className="shadow-range-slider"
+                            aria-label="Tint intensity"
+                            style={{
+                              background: `linear-gradient(to right, var(--brand-primary) 0%, var(--brand-primary) ${cardTintIntensity}%, var(--border-default) ${cardTintIntensity}%, var(--border-default) 100%)`
+                            }}
+                          />
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                )}
               </React.Fragment>
             );
           })}
@@ -923,6 +1363,26 @@ export default function App() {
               >
                 <span className="theme-dot-indicator green" />
                 <span>Green Theme</span>
+              </button>
+            </div>
+
+            {/* Appearance Mode Switcher (Light vs Dark) */}
+            <div className="header-appearance-switcher" role="group" aria-label="Appearance Mode Switcher">
+              <button
+                className={`theme-toggle-btn ${themeMode === 'light' ? 'active' : ''}`}
+                onClick={() => handleToggleThemeMode('light')}
+                title="Switch to Light Appearance"
+              >
+                <Sun size={12} />
+                <span>Light</span>
+              </button>
+              <button
+                className={`theme-toggle-btn ${themeMode === 'dark' ? 'active' : ''}`}
+                onClick={() => handleToggleThemeMode('dark')}
+                title="Switch to Dark Appearance"
+              >
+                <Moon size={12} />
+                <span>Dark</span>
               </button>
             </div>
           </div>
@@ -990,16 +1450,314 @@ export default function App() {
           {/* Page Title & Context Header */}
           <div className="page-title-row">
             <h1 className="page-title">
-              <span>Component Library</span>
-              <Info size={16} className="info-icon" title="Design System Component Showcase" />
+              <span>{activeNav === 'Cards' ? 'Theme Preview' : 'Component Library'}</span>
+              <Info
+                size={16}
+                className="info-icon"
+                title={activeNav === 'Cards' ? 'Theme Preview - Representative Card Component' : 'Design System Component Showcase'}
+              />
             </h1>
             <span className="badge-counter">
-              Active: {THEME_PRESETS[activePreset].name}
+              {activeNav === 'Cards'
+                ? `${THEME_PRESETS[activePreset].name} · ${isDarkMode ? 'Dark' : 'Light'} · ${cardVariant}`
+                : `Active: ${THEME_PRESETS[activePreset].name} (${isDarkMode ? 'Dark' : 'Light'})`}
             </span>
           </div>
 
-          {/* Standard Cards Grid - All Inherit var(--color-card-background) */}
-          <div className="cards-grid">
+          {activeNav === 'Cards' ? (() => {
+            const previewHeaderStyles = getCardHeaderStyles(cardHeaderStyle, cardHeaderStrength);
+            const previewNestedStyles = getNestedStyles(cardNestedStyle, cardNestedDepth);
+            const previewTintOverlay = getCardTintOverlay(cardTint, cardTintIntensity);
+
+            const effectiveCardBg = cardBgType === 'solid'
+              ? ((cardBgSolid === '#FFFFFF' || cardBgSolid === '#181D27') ? (isDarkMode ? '#181D27' : '#FFFFFF') : cardBgSolid)
+              : `linear-gradient(${cardBgGradientDir}, ${cardBgGradientStart}, ${cardBgGradientEnd})`;
+
+            const cardSurfaceStyle = {
+              boxShadow: getCardShadow(cardVariant, cardShadowDepth),
+              border: getCardBorder(cardVariant),
+              ...(previewTintOverlay !== 'none'
+                ? {
+                    backgroundColor: cardBgType === 'solid' ? effectiveCardBg : undefined,
+                    backgroundImage: cardBgType === 'solid'
+                      ? previewTintOverlay
+                      : `${previewTintOverlay}, ${effectiveCardBg}`,
+                  }
+                : {
+                    background: effectiveCardBg,
+                  }),
+            };
+
+            const badgeTintClass = cardTint === 'High' ? 'tint-vibrant' : (cardTint === 'Low' ? 'tint-soft' : 'tint-neutral');
+
+            return (
+              <div className="single-card-preview-area">
+                <div className="theme-preview-cards-layout">
+                  {/* Column 1: Card 1 — Large (Performance Overview) */}
+                  <div className="theme-preview-col-primary">
+                    <section
+                      className="representative-preview-card card-size-lg"
+                      style={cardSurfaceStyle}
+                      aria-label="Performance Overview Card"
+                    >
+                      {/* Card Header */}
+                      <div
+                        className="rep-card-header"
+                        style={{
+                          backgroundColor: previewHeaderStyles.backgroundColor,
+                          borderBottom: previewHeaderStyles.borderBottom,
+                        }}
+                      >
+                        <div className="rep-card-header-titles">
+                          <h2 className="rep-card-title" style={{ color: previewHeaderStyles.color }}>Performance Overview</h2>
+                          <span className="rep-card-subtitle" style={{ color: previewHeaderStyles.subtitleColor }}>Monthly Performance</span>
+                        </div>
+                      </div>
+
+                      {/* Card Body */}
+                      <div className="rep-card-body">
+                        {/* Top Metric Row */}
+                        <div className="rep-metric-row">
+                          <div className="rep-metric-group">
+                            <span className="rep-metric-value">$24,580</span>
+                            <span className="rep-metric-label">Revenue</span>
+                          </div>
+
+                          {/* Small Positive Status Badge */}
+                          <div className={`rep-status-badge ${badgeTintClass}`}>
+                            <span>▲</span>
+                            <span>+12.5%</span>
+                          </div>
+                        </div>
+
+                        {/* Revenue Performance Sparkline Visualization */}
+                        <div
+                          className="rep-sparkline-tile"
+                          style={{
+                            ...previewNestedStyles,
+                            borderRadius: '10px',
+                          }}
+                        >
+                          <div className="rep-sparkline-head">
+                            <span className="rep-sparkline-title">Revenue Performance</span>
+                            <span className="rep-sparkline-period">Jan → Jun</span>
+                          </div>
+
+                          <div className="rep-sparkline-svg-wrap">
+                            <svg
+                              viewBox="0 0 280 50"
+                              fill="none"
+                              xmlns="http://www.w3.org/2000/svg"
+                              style={{ width: '100%', height: '50px', overflow: 'visible' }}
+                            >
+                              <defs>
+                                <linearGradient id="rep-sparkline-gradient" x1="0" y1="0" x2="0" y2="1">
+                                  <stop offset="0%" stopColor="var(--brand-primary)" stopOpacity={cardTint === 'High' ? (isDarkMode ? 0.38 : 0.32) : (cardTint === 'Low' ? (isDarkMode ? 0.22 : 0.18) : (isDarkMode ? 0.16 : 0.12))} />
+                                  <stop offset="100%" stopColor="var(--brand-primary)" stopOpacity="0" />
+                                </linearGradient>
+                              </defs>
+
+                              {/* Area fill under curve */}
+                              <path
+                                d="M 12,42 C 38,42 48,36 64,36 C 80,36 98,32 116,32 C 134,32 150,24 168,24 C 186,24 202,16 220,16 C 238,16 252,6 270,6 L 270,48 L 12,48 Z"
+                                fill="url(#rep-sparkline-gradient)"
+                              />
+
+                              {/* Sparkline curve showing gradual upward trend */}
+                              <path
+                                d="M 12,42 C 38,42 48,36 64,36 C 80,36 98,32 116,32 C 134,32 150,24 168,24 C 186,24 202,16 220,16 C 238,16 252,6 270,6"
+                                stroke="var(--brand-primary)"
+                                strokeWidth="2.5"
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                              />
+
+                              {/* Target Point Dot at latest Jun coordinate */}
+                              <circle cx="270" cy="6" r="5" fill="var(--brand-primary)" fillOpacity="0.25" />
+                              <circle cx="270" cy="6" r="3" fill="var(--brand-primary)" stroke={isDarkMode ? '#181D27' : '#FFFFFF'} strokeWidth="1.5" />
+                            </svg>
+                          </div>
+
+                          {/* Period labels Jan -> Jun */}
+                          <div className="rep-sparkline-labels">
+                            <span>Jan</span>
+                            <span>Feb</span>
+                            <span>Mar</span>
+                            <span>Apr</span>
+                            <span>May</span>
+                            <span>Jun</span>
+                          </div>
+                        </div>
+
+                        {/* Bottom Row - Nested Elements */}
+                        <div className="rep-nested-row">
+                          <div
+                            className="rep-nested-tile"
+                            style={{
+                              ...previewNestedStyles,
+                              borderRadius: '8px',
+                            }}
+                          >
+                            <span className="rep-nested-val">1,284</span>
+                            <span className="rep-nested-label">Orders</span>
+                          </div>
+
+                          <div
+                            className="rep-nested-tile"
+                            style={{
+                              ...previewNestedStyles,
+                              borderRadius: '8px',
+                            }}
+                          >
+                            <span className="rep-nested-val">342</span>
+                            <span className="rep-nested-label">Customers</span>
+                          </div>
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+
+                  {/* Column 2: Card 2 — Medium & Card 3 — Small */}
+                  <div className="theme-preview-col-secondary">
+                    {/* Card 2 — Medium: User Activity */}
+                    <section
+                      className="representative-preview-card card-size-md"
+                      style={cardSurfaceStyle}
+                      aria-label="User Activity Card"
+                    >
+                      <div
+                        className="rep-card-header"
+                        style={{
+                          backgroundColor: previewHeaderStyles.backgroundColor,
+                          borderBottom: previewHeaderStyles.borderBottom,
+                        }}
+                      >
+                        <div className="rep-card-header-titles">
+                          <h2 className="rep-card-title" style={{ color: previewHeaderStyles.color }}>User Activity</h2>
+                          <span className="rep-card-subtitle" style={{ color: previewHeaderStyles.subtitleColor }}>Active Engagement</span>
+                        </div>
+                      </div>
+
+                      <div className="rep-card-body-md">
+                        <div className="rep-metric-row">
+                          <div className="rep-metric-group">
+                            <span className="rep-metric-value-md">8,420</span>
+                            <span className="rep-metric-label">Active Users</span>
+                          </div>
+                          <div className={`rep-status-badge ${badgeTintClass}`}>
+                            <span>▲</span>
+                            <span>+8.4%</span>
+                          </div>
+                        </div>
+
+                        {/* Simple horizontal progress indicator */}
+                        <div className="rep-progress-wrap">
+                          <div className="rep-progress-bar-head">
+                            <span className="rep-progress-caption">Monthly Target</span>
+                            <span className="rep-progress-val">84%</span>
+                          </div>
+                          <div
+                            className="rep-progress-track"
+                            style={{
+                              boxShadow: cardNestedStyle === 'Recessed' ? 'inset 0 1px 2px rgba(15, 23, 42, 0.12)' : 'none',
+                            }}
+                          >
+                            <div
+                              className="rep-progress-fill"
+                              style={{
+                                width: '84%',
+                                backgroundColor: 'var(--brand-primary)',
+                              }}
+                            />
+                          </div>
+                        </div>
+
+                        {/* Small labels: Weekly, Monthly, Goal */}
+                        <div className="rep-sublabels-row">
+                          <div
+                            className="rep-nested-tile"
+                            style={{
+                              ...previewNestedStyles,
+                              borderRadius: '8px',
+                              padding: '7px 9px',
+                            }}
+                          >
+                            <span className="rep-sublabel-title">Weekly</span>
+                            <span className="rep-sublabel-val">2,140</span>
+                          </div>
+                          <div
+                            className="rep-nested-tile"
+                            style={{
+                              ...previewNestedStyles,
+                              borderRadius: '8px',
+                              padding: '7px 9px',
+                            }}
+                          >
+                            <span className="rep-sublabel-title">Monthly</span>
+                            <span className="rep-sublabel-val">8,420</span>
+                          </div>
+                          <div
+                            className="rep-nested-tile"
+                            style={{
+                              ...previewNestedStyles,
+                              borderRadius: '8px',
+                              padding: '7px 9px',
+                            }}
+                          >
+                            <span className="rep-sublabel-title">Goal</span>
+                            <span className="rep-sublabel-val">10k</span>
+                          </div>
+                        </div>
+                      </div>
+                    </section>
+
+                    {/* Card 3 — Small: System Status */}
+                    <section
+                      className="representative-preview-card card-size-sm"
+                      style={cardSurfaceStyle}
+                      aria-label="System Status Card"
+                    >
+                      <div
+                        className="rep-card-header"
+                        style={{
+                          backgroundColor: previewHeaderStyles.backgroundColor,
+                          borderBottom: previewHeaderStyles.borderBottom,
+                          padding: '11px 18px 9px 18px',
+                        }}
+                      >
+                        <div className="rep-card-header-titles">
+                          <h2 className="rep-card-title" style={{ fontSize: '15px', color: previewHeaderStyles.color }}>System Status</h2>
+                        </div>
+                      </div>
+
+                      <div className="rep-card-body-sm">
+                        <div
+                          className="rep-status-banner-row"
+                          style={{
+                            boxShadow: previewNestedStyles.boxShadow,
+                            borderRadius: '8px',
+                            padding: '9px 12px',
+                          }}
+                        >
+                          <span className="status-indicator-dot" />
+                          <span className="rep-status-text">All Systems Operational</span>
+                        </div>
+
+                        <div className="rep-status-footer-row">
+                          <div className="rep-status-uptime">
+                            <span className="rep-uptime-val">99.9%</span>
+                            <span className="rep-uptime-label">Uptime</span>
+                          </div>
+                          <span className="rep-timestamp-label">Last checked: 2 min ago</span>
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </div>
+              </div>
+            );
+          })() : (
+            <div className="cards-grid">
             {/* ROW 1: Typography Scale (Left) + Selection States (Right) */}
             <div className="grid-row-split">
               {/* STANDARD CARD 1: Typography Scale */}
@@ -1284,6 +2042,7 @@ export default function App() {
               </section>
             </div>
           </div>
+        )}
         </div>
       </main>
 
@@ -1451,31 +2210,37 @@ export default function App() {
             </p>
 
             <pre className="code-snippet">
-{`/* ${THEME_PRESETS[activePreset].name} Tokens */
+{(() => {
+  const tObj = deriveTheme(activePreset, themeMode);
+  return `/* ${THEME_PRESETS[activePreset].name} · ${themeMode.toUpperCase()} Tokens */
 :root {
   /* Brand */
-  --brand-primary: ${brandPrimary};
-  --brand-secondary: ${brandSecondary};
-  --brand-highlight: ${brandHighlight};
+  --brand-primary: ${tObj.accent};
+  --brand-secondary: ${tObj.accentSecondary};
+  --brand-highlight: ${tObj.accentHighlight};
 
   /* Surfaces */
-  --color-card-background: ${currentCardBgCss};
-  --color-card-header: ${cardHeaderBg};
-  --color-page-background: ${pageBg};
-  --color-notification-background: ${notificationBg};
+  --color-card-background: ${tObj.cardBackground};
+  --color-page-background: ${tObj.previewBackground};
+  --color-notification-background: ${tObj.surfaceElevated};
+
+  /* Borders */
+  --border-default: ${tObj.border};
+  --border-strong: ${tObj.borderStrong};
 
   /* Status Colors */
-  --color-success: ${statusSuccess};
-  --color-warning: ${statusWarning};
-  --color-info: ${statusInfo};
-  --color-error: ${statusError};
+  --color-success: ${tObj.statusSuccess};
+  --color-warning: ${tObj.statusWarning};
+  --color-info: ${tObj.statusInfo};
+  --color-error: ${tObj.statusError};
 
   /* Text */
-  --text-primary: ${textPrimary};
-  --text-secondary: ${textSecondary};
-  --text-tertiary: ${textTertiary};
-  --text-disabled: ${textDisabled};
-}`}
+  --text-primary: ${tObj.textPrimary};
+  --text-secondary: ${tObj.textSecondary};
+  --text-tertiary: ${tObj.textTertiary};
+  --text-disabled: ${tObj.textDisabled};
+}`;
+})()}
             </pre>
 
             <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '8px' }}>
@@ -1496,6 +2261,7 @@ export default function App() {
           </div>
         </div>
       )}
+      </div>
     </div>
   );
 }

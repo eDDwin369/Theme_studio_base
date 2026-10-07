@@ -114,41 +114,52 @@
 
 /* Dark Mode Tokens */
 [data-theme='dark'] {
-  --bg-canvas: #0B0F17;
-  --bg-sidebar: #0F172A;
-  --bg-header: #0F172A;
-  --bg-card: #131D33;
-  --bg-card-subtle: #192440;
-  --bg-muted: #1E293B;
-  --bg-hover: #1E293B;
-  --bg-active: #27354D;
+  --bg-canvas: #0F1117;
+  --bg-sidebar: #151922;
+  --bg-header: #151922;
+  --bg-card: #181D27;
+  --bg-card-subtle: #1F2633;
+  --bg-muted: #202632;
+  --bg-hover: #1A202C;
+  --bg-active: #242D3D;
 
-  --border-subtle: #1E293B;
-  --border-default: #26334D;
-  --border-strong: #334155;
+  --color-card-background: #181D27;
+  --color-page-background: #11151D;
+  --color-notification-background: #1F2633;
+
+  --theme-studio-bg: #0F1117;
+  --theme-studio-surface: #151922;
+  --theme-studio-panel: #181D27;
+  --theme-studio-control-bg: #151922;
+  --theme-studio-muted: #202632;
+  --theme-studio-border: #2A3240;
+
+  --border-subtle: #1C2330;
+  --border-default: #2A3240;
+  --border-strong: #3A4456;
 
   --text-primary: #F8FAFC;
   --text-secondary: #94A3B8;
   --text-tertiary: #64748B;
   --text-disabled: #475569;
 
-  --shadow-card: 0 1px 3px 0 rgba(0, 0, 0, 0.3);
-  --shadow-dropdown: 0 10px 20px -3px rgba(0, 0, 0, 0.5);
+  --shadow-card: 0 2px 8px 0 rgba(0, 0, 0, 0.45);
+  --shadow-dropdown: 0 12px 24px -4px rgba(0, 0, 0, 0.65);
 
   --color-success-bg: rgba(16, 185, 129, 0.15);
-  --color-success-border: rgba(16, 185, 129, 0.3);
+  --color-success-border: rgba(16, 185, 129, 0.35);
   --color-success-text: #34D399;
 
   --color-warning-bg: rgba(245, 158, 11, 0.15);
-  --color-warning-border: rgba(245, 158, 11, 0.3);
+  --color-warning-border: rgba(245, 158, 11, 0.35);
   --color-warning-text: #FBBF24;
 
   --color-error-bg: rgba(239, 68, 68, 0.15);
-  --color-error-border: rgba(239, 68, 68, 0.3);
+  --color-error-border: rgba(239, 68, 68, 0.35);
   --color-error-text: #F87171;
 
   --color-info-bg: rgba(2, 132, 199, 0.15);
-  --color-info-border: rgba(2, 132, 199, 0.3);
+  --color-info-border: rgba(2, 132, 199, 0.35);
   --color-info-text: #38BDF8;
 }
 
