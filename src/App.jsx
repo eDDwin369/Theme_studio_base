@@ -563,14 +563,14 @@ export default function App() {
   };
 
   const navItems = [
-    { id: 'Theme Settings', label: 'Theme Settings', icon: Sliders },
-    { id: 'Colour Settings', label: 'Colour Settings', icon: Palette, active: true },
-    { id: 'Typography', label: 'Typography', icon: Type },
-    { id: 'Cards', label: 'Cards', icon: Square },
-    { id: 'Tables', label: 'Tables', icon: Table },
-    { id: 'Surface & Shape', label: 'Surface & Shape', icon: Layers },
-    { id: 'Notifications', label: 'Notifications', icon: Bell },
-    { id: 'Login Screen', label: 'Login Screen', icon: LogIn },
+    { id: 'Theme Settings', label: 'Theme Settings', icon: Sliders, tooltip: 'Configure global theme and appearance settings.' },
+    { id: 'Colour Settings', label: 'Colour Settings', icon: Palette, active: true, tooltip: 'Configure brand, text, and status color tokens.' },
+    { id: 'Typography', label: 'Typography', icon: Type, tooltip: 'Adjust typography styles used across the interface.' },
+    { id: 'Cards', label: 'Cards', icon: Square, tooltip: 'Customize the appearance and styling of dashboard cards.' },
+    { id: 'Tables', label: 'Tables', icon: Table, tooltip: 'Configure table data display and formatting styles.' },
+    { id: 'Surface & Shape', label: 'Surface & Shape', icon: Layers, tooltip: 'Manage surface elevations, borders, and corner radiuses.' },
+    { id: 'Notifications', label: 'Notifications', icon: Bell, tooltip: 'Customize notification banners and toast alerts.' },
+    { id: 'Login Screen', label: 'Login Screen', icon: LogIn, tooltip: 'Configure login layout and authentication styling.' },
   ];
 
   const selectionRows = [
@@ -677,14 +677,6 @@ export default function App() {
             >
               <RotateCcw size={15} />
             </button>
-            <button
-              className="icon-btn"
-              onClick={() => handleToggleThemeMode(themeMode === 'light' ? 'dark' : 'light')}
-              title={`Switch to ${themeMode === 'light' ? 'dark' : 'light'} mode`}
-              aria-label="Toggle dark/light mode"
-            >
-              {themeMode === 'light' ? <Moon size={15} /> : <Sun size={15} />}
-            </button>
           </div>
         </div>
 
@@ -763,7 +755,13 @@ export default function App() {
                     >
                       <Monitor size={13} className="sub-icon" />
                     </button>
-                    <Info size={13} className="sub-icon" title="Component documentation" />
+                    <span
+                      className="app-tooltip-wrap"
+                      data-tooltip={item.tooltip}
+                      data-tooltip-pos="left"
+                    >
+                      <Info size={13} className="sub-icon" />
+                    </span>
                     {isActive && <span className="chevron-up-icon" title="Active section">▲</span>}
                   </div>
                 </div>
@@ -886,7 +884,13 @@ export default function App() {
                         <div className="color-field-group">
                           <div className="color-field-label">
                             <span>Brand Color</span>
-                            <Info size={11} className="help-icon" title="Primary UI brand color token" />
+                            <span
+                              className="app-tooltip-wrap"
+                              data-tooltip="Primary UI brand color used for key actions and active states."
+                              data-tooltip-pos="top"
+                            >
+                              <Info size={11} className="help-icon" />
+                            </span>
                           </div>
 
                           <div
@@ -922,7 +926,13 @@ export default function App() {
                         <div className="color-field-group">
                           <div className="color-field-label">
                             <span>Secondary / Accent</span>
-                            <Info size={11} className="help-icon" title="Secondary accent token" />
+                            <span
+                              className="app-tooltip-wrap"
+                              data-tooltip="Secondary brand color used for accents and visual balance."
+                              data-tooltip-pos="top"
+                            >
+                              <Info size={11} className="help-icon" />
+                            </span>
                           </div>
 
                           <div
@@ -945,7 +955,13 @@ export default function App() {
                         <div className="color-field-group">
                           <div className="color-field-label">
                             <span>Highlight Colour</span>
-                            <Info size={11} className="help-icon" title="Highlight accent token" />
+                            <span
+                              className="app-tooltip-wrap"
+                              data-tooltip="Vibrant highlight color for badges and emphasis."
+                              data-tooltip-pos="top"
+                            >
+                              <Info size={11} className="help-icon" />
+                            </span>
                           </div>
 
                           <div
@@ -976,7 +992,13 @@ export default function App() {
                         <div>
                           <div className="old-ui-section-header">
                             <span>STATUS COLORS</span>
-                            <Info size={11} className="help-icon" title="Semantic status colors" />
+                            <span
+                              className="app-tooltip-wrap"
+                              data-tooltip="Semantic status colors representing success, warning, info, and error states."
+                              data-tooltip-pos="top"
+                            >
+                              <Info size={11} className="help-icon" />
+                            </span>
                           </div>
 
                           <div className="old-ui-grid-2x2">
@@ -1038,7 +1060,13 @@ export default function App() {
                         <div>
                           <div className="old-ui-section-header with-margin">
                             <span>SURFACES</span>
-                            <Info size={11} className="help-icon" title="Global surface tokens" />
+                            <span
+                              className="app-tooltip-wrap"
+                              data-tooltip="Surface background tokens for page, cards, and elevated containers."
+                              data-tooltip-pos="top"
+                            >
+                              <Info size={11} className="help-icon" />
+                            </span>
                           </div>
 
                           <div className="old-ui-grid-2x2">
@@ -1126,7 +1154,13 @@ export default function App() {
                       <div className="color-field-group">
                         <div className="old-ui-section-header">
                           <span>Typography & Text Tokens</span>
-                          <Info size={11} className="help-icon" title="Global text color roles" />
+                          <span
+                            className="app-tooltip-wrap"
+                            data-tooltip="Text hierarchy colors for primary, secondary, tertiary, and disabled copy."
+                            data-tooltip-pos="top"
+                          >
+                            <Info size={11} className="help-icon" />
+                          </span>
                         </div>
 
                         <div className="old-ui-grid-2x2">
@@ -1219,7 +1253,14 @@ export default function App() {
                         <div className="shadow-depth-section">
                           <div className="shadow-depth-header">
                             <span className="shadow-depth-label">
-                              Shadow depth <Info size={11} className="help-icon" title="Adjust card elevation shadow depth" />
+                              Shadow depth{' '}
+                              <span
+                                className="app-tooltip-wrap"
+                                data-tooltip="Adjust card elevation and drop-shadow spread intensity."
+                                data-tooltip-pos="top"
+                              >
+                                <Info size={11} className="help-icon" />
+                              </span>
                             </span>
                             <span
                               className={`shadow-depth-badge ${!shadowDepthAuto ? 'edited' : ''}`}
@@ -1281,7 +1322,14 @@ export default function App() {
                         <div className="shadow-depth-section">
                           <div className="shadow-depth-header">
                             <span className="shadow-depth-label">
-                              Header strength <Info size={11} className="help-icon" title="Adjust header appearance intensity" />
+                              Header strength{' '}
+                              <span
+                                className="app-tooltip-wrap"
+                                data-tooltip="Adjust card header background opacity and contrast."
+                                data-tooltip-pos="top"
+                              >
+                                <Info size={11} className="help-icon" />
+                              </span>
                             </span>
                             <span
                               className={`shadow-depth-badge ${!headerStrengthAuto ? 'edited' : ''}`}
@@ -1343,7 +1391,14 @@ export default function App() {
                         <div className="shadow-depth-section">
                           <div className="shadow-depth-header">
                             <span className="shadow-depth-label">
-                              Nested depth <Info size={11} className="help-icon" title="Adjust nested elements depth" />
+                              Nested depth{' '}
+                              <span
+                                className="app-tooltip-wrap"
+                                data-tooltip="Adjust nested container inset or elevation depth."
+                                data-tooltip-pos="top"
+                              >
+                                <Info size={11} className="help-icon" />
+                              </span>
                             </span>
                             <span
                               className={`shadow-depth-badge ${!nestedDepthAuto ? 'edited' : ''}`}
@@ -1405,7 +1460,14 @@ export default function App() {
                         <div className="shadow-depth-section">
                           <div className="shadow-depth-header">
                             <span className="shadow-depth-label">
-                              Tint intensity <Info size={11} className="help-icon" title="Adjust theme tint intensity" />
+                              Tint intensity{' '}
+                              <span
+                                className="app-tooltip-wrap"
+                                data-tooltip="Adjust theme color tint intensity across card surfaces."
+                                data-tooltip-pos="top"
+                              >
+                                <Info size={11} className="help-icon" />
+                              </span>
                             </span>
                             <span
                               className={`shadow-depth-badge ${!tintIntensityAuto ? 'edited' : ''}`}
@@ -1476,26 +1538,6 @@ export default function App() {
               >
                 <span className="theme-dot-indicator green" />
                 <span>Green Theme</span>
-              </button>
-            </div>
-
-            {/* Appearance Mode Switcher (Light vs Dark) */}
-            <div className="header-appearance-switcher" role="group" aria-label="Appearance Mode Switcher">
-              <button
-                className={`theme-toggle-btn ${themeMode === 'light' ? 'active' : ''}`}
-                onClick={() => handleToggleThemeMode('light')}
-                title="Switch to Light Appearance"
-              >
-                <Sun size={12} />
-                <span>Light</span>
-              </button>
-              <button
-                className={`theme-toggle-btn ${themeMode === 'dark' ? 'active' : ''}`}
-                onClick={() => handleToggleThemeMode('dark')}
-                title="Switch to Dark Appearance"
-              >
-                <Moon size={12} />
-                <span>Dark</span>
               </button>
             </div>
           </div>
@@ -1604,8 +1646,9 @@ export default function App() {
                       <h1 className="dashboard-page-title">Operations Center</h1>
                       <button
                         type="button"
-                        className="dashboard-info-btn"
-                        title="Operations Center Overview · Live Surveillance & Security Feeds"
+                        className="dashboard-info-btn app-tooltip-wrap"
+                        data-tooltip="Monitor live operations, alerts, and system activity."
+                        data-tooltip-pos="bottom"
                         aria-label="Operations Center Information"
                       >
                         <Info size={16} />
@@ -1882,7 +1925,11 @@ export default function App() {
                               <div className={`notif-icon-badge ${item.type}`}>
                                 {item.type === 'alert' && <AlertTriangle size={13} strokeWidth={2.4} />}
                                 {item.type === 'success' && <Check size={13} strokeWidth={2.6} />}
-                                {item.type === 'info' && <Info size={13} strokeWidth={2.4} />}
+                                {item.type === 'info' && (
+                                  <span className="app-tooltip-wrap" data-tooltip="Informational system notice" data-tooltip-pos="top">
+                                    <Info size={13} strokeWidth={2.4} />
+                                  </span>
+                                )}
                                 {item.type === 'error' && <AlertCircle size={13} strokeWidth={2.4} />}
                               </div>
 
@@ -1934,8 +1981,9 @@ export default function App() {
                       <h1 className="dashboard-page-title">Camera Surveillance</h1>
                       <button
                         type="button"
-                        className="dashboard-info-btn"
-                        title="Camera Surveillance System Overview & Live Feeds"
+                        className="dashboard-info-btn app-tooltip-wrap"
+                        data-tooltip="Monitor connected cameras and recent detection activity."
+                        data-tooltip-pos="bottom"
                         aria-label="Camera Surveillance Information"
                       >
                         <Info size={16} />
@@ -2154,8 +2202,9 @@ export default function App() {
                       <h1 className="dashboard-page-title">Reports</h1>
                       <button
                         type="button"
-                        className="dashboard-info-btn"
-                        title="Reports & Analytics Overview"
+                        className="dashboard-info-btn app-tooltip-wrap"
+                        data-tooltip="View generated reports, trends, and scheduled exports."
+                        data-tooltip-pos="bottom"
                         aria-label="Reports Information"
                       >
                         <Info size={16} />
@@ -2369,8 +2418,9 @@ export default function App() {
                       <h1 className="dashboard-page-title">Orders</h1>
                       <button
                         type="button"
-                        className="dashboard-info-btn"
-                        title="Orders & Transaction Overview"
+                        className="dashboard-info-btn app-tooltip-wrap"
+                        data-tooltip="Track customer orders, fulfillment status, and transaction history."
+                        data-tooltip-pos="bottom"
                         aria-label="Orders Information"
                       >
                         <Info size={16} />
@@ -2522,8 +2572,9 @@ export default function App() {
                       <h1 className="dashboard-page-title">{previewScreen}</h1>
                       <button
                         type="button"
-                        className="dashboard-info-btn"
-                        title={`${previewScreen} Preview`}
+                        className="dashboard-info-btn app-tooltip-wrap"
+                        data-tooltip={`Overview of ${previewScreen} modules and system telemetry.`}
+                        data-tooltip-pos="bottom"
                         aria-label={`${previewScreen} Information`}
                       >
                         <Info size={16} />
@@ -2586,8 +2637,9 @@ export default function App() {
                     <h1 className="dashboard-page-title">{previewScreen === 'Components' ? 'Dashboard' : previewScreen}</h1>
                     <button
                       type="button"
-                      className="dashboard-info-btn"
-                      title={`${previewScreen} Overview & Key Performance Metrics`}
+                      className="dashboard-info-btn app-tooltip-wrap"
+                      data-tooltip="Overview of your dashboard performance and key metrics."
+                      data-tooltip-pos="bottom"
                       aria-label="Dashboard Information"
                     >
                       <Info size={16} />
@@ -2882,11 +2934,16 @@ export default function App() {
               <div className="page-title-row">
                 <h1 className="page-title">
                   <span>Component Library</span>
-                  <Info
-                    size={16}
-                    className="info-icon"
-                    title="Design System Component Showcase"
-                  />
+                  <span
+                    className="app-tooltip-wrap"
+                    data-tooltip="Explore reusable design system components, typography, and controls."
+                    data-tooltip-pos="bottom"
+                  >
+                    <Info
+                      size={16}
+                      className="info-icon"
+                    />
+                  </span>
                 </h1>
                 <span className="badge-counter">
                   {`Active: ${THEME_PRESETS[activePreset].name} (${isDarkMode ? 'Dark' : 'Light'})`}
