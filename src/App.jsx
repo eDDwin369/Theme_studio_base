@@ -24,7 +24,20 @@ import {
   Edit2,
   ChevronUp,
   Maximize2,
-  Settings
+  Settings,
+  Plus,
+  Minus,
+  Crosshair,
+  Locate,
+  AlertTriangle,
+  DollarSign,
+  AlertCircle,
+  Download,
+  ArrowDown,
+  FileText,
+  Search,
+  ChevronLeft,
+  ChevronRight
 } from 'lucide-react';
 import oomnieyeLogo from './assets/oomnieye-logo.png';
 import allcadLogo from './assets/allcad-logo.png';
@@ -152,6 +165,35 @@ export default function App() {
 
   // Revenue Goal Progress State
   const [progressVal, setProgressVal] = useState(74);
+
+  // Dashboard Preview Interactive States
+  const [hoveredBarIndex, setHoveredBarIndex] = useState(null);
+  const [showLowStockToast, setShowLowStockToast] = useState(true);
+
+  // Previewing Screen State & Selector Card
+  const [showPreviewScreenCard, setShowPreviewScreenCard] = useState(true);
+  const [previewScreen, setPreviewScreen] = useState('Dashboard');
+
+  // Operations Center Preview States
+  const [mapZoom, setMapZoom] = useState(100);
+  const [activeMapLayer, setActiveMapLayer] = useState('Default');
+  const [isLocating, setIsLocating] = useState(false);
+  const [operationsNotifs, setOperationsNotifs] = useState([
+    { id: 1, title: 'Camera 04 motion detected — Loading Bay', time: 'just now', type: 'alert', unread: true },
+    { id: 2, title: 'Stream reconnected — North Gate feed', time: '4m ago', type: 'success', unread: true },
+    { id: 3, title: 'Access request — J. Okoro (Operator)', time: '22m ago', type: 'info', unread: false },
+    { id: 4, title: 'Report archive storage 82% full', time: '1h ago', type: 'alert', unread: false },
+    { id: 5, title: 'Backup completed — 12,480 clips archived', time: '2h ago', type: 'success', unread: false },
+    { id: 6, title: 'Firmware update available — 3 devices', time: '3h ago', type: 'info', unread: false },
+    { id: 7, title: 'Camera 02 lens obstruction detected', time: '5h ago', type: 'error', unread: false },
+    { id: 8, title: 'Nightly health check passed — all nodes', time: '6h ago', type: 'success', unread: false },
+    { id: 9, title: 'New operator invited — M. Fernandez', time: '7h ago', type: 'info', unread: false },
+  ]);
+
+  // Orders Preview States
+  const [orderSearch, setOrderSearch] = useState('');
+  const [orderStatusFilter, setOrderStatusFilter] = useState('All');
+  const [orderPage, setOrderPage] = useState(1);
 
   // Apply Theme Preset (Corporate Blue vs Corporate Green)
   const applyPreset = (presetKey) => {
@@ -624,6 +666,46 @@ export default function App() {
           </div>
         </div>
 
+        {/* PREVIEWING SCREEN SELECTOR CARD */}
+        {showPreviewScreenCard && (
+          <div className="previewing-screen-card" role="region" aria-label="Preview Screen Selector">
+            <div className="previewing-screen-header">
+              <span className="previewing-screen-title">PREVIEWING SCREEN</span>
+              <button
+                type="button"
+                className="previewing-screen-close-btn"
+                onClick={() => setShowPreviewScreenCard(false)}
+                aria-label="Close preview screen selector"
+                title="Close"
+              >
+                <X size={12} />
+              </button>
+            </div>
+            <div className="previewing-screen-grid">
+              {['Dashboard', 'Operations', 'Cameras', 'Reports', 'Orders', 'Components'].map((screen) => {
+                const isSelected = previewScreen === screen;
+                return (
+                  <button
+                    key={screen}
+                    type="button"
+                    className={`previewing-screen-pill ${isSelected ? 'active' : ''}`}
+                    onClick={() => {
+                      setPreviewScreen(screen);
+                      if (screen === 'Components') {
+                        setActiveNav('Typography');
+                      } else {
+                        setActiveNav('Cards');
+                      }
+                    }}
+                  >
+                    {screen}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        )}
+
         {/* Sidebar Navigation Items */}
         <div className="sidebar-content">
           {navItems.map((item) => {
@@ -647,18 +729,20 @@ export default function App() {
                   </div>
 
                   <div className="nav-item-actions">
-                    {item.id === 'Cards' && isActive ? (
-                      <>
-                        <Monitor size={13} className="sub-icon" title="Preview mode" />
-                        <Info size={13} className="sub-icon" title="Component documentation" />
-                        <span className="chevron-up-icon" title="Active section">▲</span>
-                      </>
-                    ) : (
-                      <>
-                        <MessageSquare size={13} className="sub-icon" title="View comments" />
-                        <Info size={13} className="sub-icon" title="Component documentation" />
-                      </>
-                    )}
+                    <button
+                      type="button"
+                      className="sub-icon-btn"
+                      title="Preview screen selector"
+                      aria-label="Preview screen selector"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setShowPreviewScreenCard((prev) => !prev);
+                      }}
+                    >
+                      <Monitor size={13} className="sub-icon" />
+                    </button>
+                    <Info size={13} className="sub-icon" title="Component documentation" />
+                    {isActive && <span className="chevron-up-icon" title="Active section">▲</span>}
                   </div>
                 </div>
 
@@ -1343,9 +1427,16 @@ export default function App() {
         {/* Top Header with Theme Switcher */}
         <header className="top-header">
           <div className="header-left">
-            <div className="preview-tag">
+            <div
+              className="preview-tag clickable"
+              onClick={() => setShowPreviewScreenCard((prev) => !prev)}
+              title="Click to toggle preview screen selector"
+              role="button"
+              tabIndex={0}
+              style={{ cursor: 'pointer' }}
+            >
               <Monitor size={16} className="device-icon" />
-              <span>Previewing Components</span>
+              <span>{`Previewing ${previewScreen}`}</span>
             </div>
 
             {/* Quick 2-Theme Switcher in Top Header */}
@@ -1447,24 +1538,7 @@ export default function App() {
             transform: zoomLevel !== 100 ? `scale(${zoomLevel / 100})` : 'none',
           }}
         >
-          {/* Page Title & Context Header */}
-          <div className="page-title-row">
-            <h1 className="page-title">
-              <span>{activeNav === 'Cards' ? 'Theme Preview' : 'Component Library'}</span>
-              <Info
-                size={16}
-                className="info-icon"
-                title={activeNav === 'Cards' ? 'Theme Preview - Representative Card Component' : 'Design System Component Showcase'}
-              />
-            </h1>
-            <span className="badge-counter">
-              {activeNav === 'Cards'
-                ? `${THEME_PRESETS[activePreset].name} · ${isDarkMode ? 'Dark' : 'Light'} · ${cardVariant}`
-                : `Active: ${THEME_PRESETS[activePreset].name} (${isDarkMode ? 'Dark' : 'Light'})`}
-            </span>
-          </div>
-
-          {activeNav === 'Cards' ? (() => {
+          {(activeNav === 'Cards' || previewScreen !== 'Components') ? (() => {
             const previewHeaderStyles = getCardHeaderStyles(cardHeaderStyle, cardHeaderStrength);
             const previewNestedStyles = getNestedStyles(cardNestedStyle, cardNestedDepth);
             const previewTintOverlay = getCardTintOverlay(cardTint, cardTintIntensity);
@@ -1488,276 +1562,1140 @@ export default function App() {
                   }),
             };
 
-            const badgeTintClass = cardTint === 'High' ? 'tint-vibrant' : (cardTint === 'Low' ? 'tint-soft' : 'tint-neutral');
+            const chartData = [
+              { month: 'Jan', revHeight: 38, profHeight: 24, revVal: '$38,200', profVal: '$24,100' },
+              { month: 'Feb', revHeight: 54, profHeight: 36, revVal: '$54,500', profVal: '$36,200' },
+              { month: 'Mar', revHeight: 42, profHeight: 28, revVal: '$42,000', profVal: '$28,300' },
+              { month: 'Apr', revHeight: 56, profHeight: 42, revVal: '$56,800', profVal: '$42,500' },
+              { month: 'May', revHeight: 52, profHeight: 38, revVal: '$52,300', profVal: '$38,400' },
+              { month: 'Jun', revHeight: 54, profHeight: 40, revVal: '$54,100', profVal: '$40,600' },
+            ];
 
-            return (
-              <div className="single-card-preview-area">
-                <div className="theme-preview-cards-layout">
-                  {/* Column 1: Card 1 — Large (Performance Overview) */}
-                  <div className="theme-preview-col-primary">
-                    <section
-                      className="representative-preview-card card-size-lg"
-                      style={cardSurfaceStyle}
-                      aria-label="Performance Overview Card"
-                    >
-                      {/* Card Header */}
-                      <div
-                        className="rep-card-header"
-                        style={{
-                          backgroundColor: previewHeaderStyles.backgroundColor,
-                          borderBottom: previewHeaderStyles.borderBottom,
-                        }}
+            if (previewScreen === 'Operations') {
+              const unreadNotifsCount = operationsNotifs.filter((n) => n.unread).length;
+
+              return (
+                <div className="operations-preview-canvas">
+                  {/* Operations Center Header */}
+                  <div className="operations-header-row">
+                    <div className="dashboard-title-wrap">
+                      <h1 className="dashboard-page-title">Operations Center</h1>
+                      <button
+                        type="button"
+                        className="dashboard-info-btn"
+                        title="Operations Center Overview · Live Surveillance & Security Feeds"
+                        aria-label="Operations Center Information"
                       >
-                        <div className="rep-card-header-titles">
-                          <h2 className="rep-card-title" style={{ color: previewHeaderStyles.color }}>Performance Overview</h2>
-                          <span className="rep-card-subtitle" style={{ color: previewHeaderStyles.subtitleColor }}>Monthly Performance</span>
-                        </div>
-                      </div>
-
-                      {/* Card Body */}
-                      <div className="rep-card-body">
-                        {/* Top Metric Row */}
-                        <div className="rep-metric-row">
-                          <div className="rep-metric-group">
-                            <span className="rep-metric-value">$24,580</span>
-                            <span className="rep-metric-label">Revenue</span>
-                          </div>
-
-                          {/* Small Positive Status Badge */}
-                          <div className={`rep-status-badge ${badgeTintClass}`}>
-                            <span>▲</span>
-                            <span>+12.5%</span>
-                          </div>
-                        </div>
-
-                        {/* Revenue Performance Sparkline Visualization */}
-                        <div
-                          className="rep-sparkline-tile"
-                          style={{
-                            ...previewNestedStyles,
-                            borderRadius: '10px',
-                          }}
-                        >
-                          <div className="rep-sparkline-head">
-                            <span className="rep-sparkline-title">Revenue Performance</span>
-                            <span className="rep-sparkline-period">Jan → Jun</span>
-                          </div>
-
-                          <div className="rep-sparkline-svg-wrap">
-                            <svg
-                              viewBox="0 0 280 50"
-                              fill="none"
-                              xmlns="http://www.w3.org/2000/svg"
-                              style={{ width: '100%', height: '50px', overflow: 'visible' }}
-                            >
-                              <defs>
-                                <linearGradient id="rep-sparkline-gradient" x1="0" y1="0" x2="0" y2="1">
-                                  <stop offset="0%" stopColor="var(--brand-primary)" stopOpacity={cardTint === 'High' ? (isDarkMode ? 0.38 : 0.32) : (cardTint === 'Low' ? (isDarkMode ? 0.22 : 0.18) : (isDarkMode ? 0.16 : 0.12))} />
-                                  <stop offset="100%" stopColor="var(--brand-primary)" stopOpacity="0" />
-                                </linearGradient>
-                              </defs>
-
-                              {/* Area fill under curve */}
-                              <path
-                                d="M 12,42 C 38,42 48,36 64,36 C 80,36 98,32 116,32 C 134,32 150,24 168,24 C 186,24 202,16 220,16 C 238,16 252,6 270,6 L 270,48 L 12,48 Z"
-                                fill="url(#rep-sparkline-gradient)"
-                              />
-
-                              {/* Sparkline curve showing gradual upward trend */}
-                              <path
-                                d="M 12,42 C 38,42 48,36 64,36 C 80,36 98,32 116,32 C 134,32 150,24 168,24 C 186,24 202,16 220,16 C 238,16 252,6 270,6"
-                                stroke="var(--brand-primary)"
-                                strokeWidth="2.5"
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                              />
-
-                              {/* Target Point Dot at latest Jun coordinate */}
-                              <circle cx="270" cy="6" r="5" fill="var(--brand-primary)" fillOpacity="0.25" />
-                              <circle cx="270" cy="6" r="3" fill="var(--brand-primary)" stroke={isDarkMode ? '#181D27' : '#FFFFFF'} strokeWidth="1.5" />
-                            </svg>
-                          </div>
-
-                          {/* Period labels Jan -> Jun */}
-                          <div className="rep-sparkline-labels">
-                            <span>Jan</span>
-                            <span>Feb</span>
-                            <span>Mar</span>
-                            <span>Apr</span>
-                            <span>May</span>
-                            <span>Jun</span>
-                          </div>
-                        </div>
-
-                        {/* Bottom Row - Nested Elements */}
-                        <div className="rep-nested-row">
-                          <div
-                            className="rep-nested-tile"
-                            style={{
-                              ...previewNestedStyles,
-                              borderRadius: '8px',
-                            }}
-                          >
-                            <span className="rep-nested-val">1,284</span>
-                            <span className="rep-nested-label">Orders</span>
-                          </div>
-
-                          <div
-                            className="rep-nested-tile"
-                            style={{
-                              ...previewNestedStyles,
-                              borderRadius: '8px',
-                            }}
-                          >
-                            <span className="rep-nested-val">342</span>
-                            <span className="rep-nested-label">Customers</span>
-                          </div>
-                        </div>
-                      </div>
-                    </section>
+                        <Info size={16} />
+                      </button>
+                    </div>
                   </div>
 
-                  {/* Column 2: Card 2 — Medium & Card 3 — Small */}
-                  <div className="theme-preview-col-secondary">
-                    {/* Card 2 — Medium: User Activity */}
+                  {/* Main Two-Column Layout */}
+                  <div className="operations-main-grid">
+                    {/* Live Map · Street View Card */}
                     <section
-                      className="representative-preview-card card-size-md"
+                      className="operations-card live-map-card"
                       style={cardSurfaceStyle}
-                      aria-label="User Activity Card"
+                      aria-label="Live Map and Street View"
                     >
                       <div
-                        className="rep-card-header"
+                        className="dashboard-card-header"
                         style={{
                           backgroundColor: previewHeaderStyles.backgroundColor,
                           borderBottom: previewHeaderStyles.borderBottom,
                         }}
                       >
-                        <div className="rep-card-header-titles">
-                          <h2 className="rep-card-title" style={{ color: previewHeaderStyles.color }}>User Activity</h2>
-                          <span className="rep-card-subtitle" style={{ color: previewHeaderStyles.subtitleColor }}>Active Engagement</span>
+                        <h2 className="dashboard-card-title" style={{ color: previewHeaderStyles.color }}>
+                          Live Map · Street View
+                        </h2>
+                        <div className="live-status-pill" title="Live Surveillance Telemetry Active">
+                          <span className="live-pulsing-dot" />
+                          <span className="live-status-text">LIVE</span>
                         </div>
                       </div>
 
-                      <div className="rep-card-body-md">
-                        <div className="rep-metric-row">
-                          <div className="rep-metric-group">
-                            <span className="rep-metric-value-md">8,420</span>
-                            <span className="rep-metric-label">Active Users</span>
+                      <div className="live-map-card-body">
+                        <div className="live-map-canvas-area">
+                          {/* Location Badge */}
+                          <div className={`map-location-badge ${isLocating ? 'locating-pulse' : ''}`}>
+                            <Crosshair size={13} className="location-target-icon" />
+                            <span>40.7128, -74.0060 · Manhattan</span>
                           </div>
-                          <div className={`rep-status-badge ${badgeTintClass}`}>
-                            <span>▲</span>
-                            <span>+8.4%</span>
-                          </div>
-                        </div>
 
-                        {/* Simple horizontal progress indicator */}
-                        <div className="rep-progress-wrap">
-                          <div className="rep-progress-bar-head">
-                            <span className="rep-progress-caption">Monthly Target</span>
-                            <span className="rep-progress-val">84%</span>
+                          {/* Center Treatment */}
+                          <div className="map-center-watermark">
+                            <span className="map-watermark-dot">●</span>
+                            <span className="map-watermark-text">
+                              {activeMapLayer === 'Satellite' ? 'SATELLITE ORBITAL / HYBRID EMBED' : 'GOOGLE STREET VIEW / EARTH EMBED'}
+                            </span>
                           </div>
-                          <div
-                            className="rep-progress-track"
-                            style={{
-                              boxShadow: cardNestedStyle === 'Recessed' ? 'inset 0 1px 2px rgba(15, 23, 42, 0.12)' : 'none',
-                            }}
-                          >
-                            <div
-                              className="rep-progress-fill"
-                              style={{
-                                width: '84%',
-                                backgroundColor: 'var(--brand-primary)',
+
+                          {/* Bottom Floating Map Controls Toolbar */}
+                          <div className="map-controls-toolbar" role="toolbar" aria-label="Map Navigation Controls">
+                            <div className="map-zoom-buttons">
+                              <button
+                                type="button"
+                                className="map-control-btn zoom-btn primary"
+                                onClick={() => setMapZoom((prev) => Math.min(prev + 10, 150))}
+                                title="Zoom In"
+                                aria-label="Zoom in"
+                              >
+                                <Plus size={13} strokeWidth={2.6} />
+                              </button>
+                              <button
+                                type="button"
+                                className="map-control-btn zoom-btn"
+                                onClick={() => setMapZoom((prev) => Math.max(prev - 10, 50))}
+                                title="Zoom Out"
+                                aria-label="Zoom out"
+                              >
+                                <Minus size={13} strokeWidth={2.6} />
+                              </button>
+                            </div>
+
+                            <div className="map-toolbar-divider" />
+
+                            <button
+                              type="button"
+                              className={`map-control-btn layers-btn ${activeMapLayer === 'Satellite' ? 'active-layer' : ''}`}
+                              onClick={() => setActiveMapLayer((prev) => (prev === 'Default' ? 'Satellite' : 'Default'))}
+                              title="Toggle Map Layers"
+                              aria-label="Toggle map layers"
+                            >
+                              <Layers size={13} />
+                              <span>Layers</span>
+                            </button>
+
+                            <div className="map-toolbar-divider" />
+
+                            <button
+                              type="button"
+                              className="map-control-btn locate-btn"
+                              onClick={() => {
+                                setIsLocating(true);
+                                setTimeout(() => setIsLocating(false), 1200);
                               }}
-                            />
-                          </div>
-                        </div>
-
-                        {/* Small labels: Weekly, Monthly, Goal */}
-                        <div className="rep-sublabels-row">
-                          <div
-                            className="rep-nested-tile"
-                            style={{
-                              ...previewNestedStyles,
-                              borderRadius: '8px',
-                              padding: '7px 9px',
-                            }}
-                          >
-                            <span className="rep-sublabel-title">Weekly</span>
-                            <span className="rep-sublabel-val">2,140</span>
-                          </div>
-                          <div
-                            className="rep-nested-tile"
-                            style={{
-                              ...previewNestedStyles,
-                              borderRadius: '8px',
-                              padding: '7px 9px',
-                            }}
-                          >
-                            <span className="rep-sublabel-title">Monthly</span>
-                            <span className="rep-sublabel-val">8,420</span>
-                          </div>
-                          <div
-                            className="rep-nested-tile"
-                            style={{
-                              ...previewNestedStyles,
-                              borderRadius: '8px',
-                              padding: '7px 9px',
-                            }}
-                          >
-                            <span className="rep-sublabel-title">Goal</span>
-                            <span className="rep-sublabel-val">10k</span>
+                              title="Locate Manhattan Operations"
+                              aria-label="Locate Manhattan Operations"
+                            >
+                              <Locate size={13} />
+                              <span>Locate</span>
+                            </button>
                           </div>
                         </div>
                       </div>
                     </section>
 
-                    {/* Card 3 — Small: System Status */}
+                    {/* Notifications Card */}
                     <section
-                      className="representative-preview-card card-size-sm"
+                      className="operations-card notifications-card"
                       style={cardSurfaceStyle}
-                      aria-label="System Status Card"
+                      aria-label="System Notifications"
                     >
                       <div
-                        className="rep-card-header"
+                        className="dashboard-card-header"
                         style={{
                           backgroundColor: previewHeaderStyles.backgroundColor,
                           borderBottom: previewHeaderStyles.borderBottom,
-                          padding: '11px 18px 9px 18px',
                         }}
                       >
-                        <div className="rep-card-header-titles">
-                          <h2 className="rep-card-title" style={{ fontSize: '15px', color: previewHeaderStyles.color }}>System Status</h2>
-                        </div>
+                        <h2 className="dashboard-card-title" style={{ color: previewHeaderStyles.color }}>
+                          Notifications
+                        </h2>
+                        {unreadNotifsCount > 0 && (
+                          <span className="notifications-badge-pill">
+                            {`${unreadNotifsCount} NEW`}
+                          </span>
+                        )}
                       </div>
 
-                      <div className="rep-card-body-sm">
-                        <div
-                          className="rep-status-banner-row"
-                          style={{
-                            boxShadow: previewNestedStyles.boxShadow,
-                            borderRadius: '8px',
-                            padding: '9px 12px',
-                          }}
-                        >
-                          <span className="status-indicator-dot" />
-                          <span className="rep-status-text">All Systems Operational</span>
-                        </div>
+                      <div className="notifications-card-body">
+                        <div className="notifications-list" role="feed" aria-label="Operations alerts">
+                          {operationsNotifs.map((item) => (
+                            <div
+                              key={item.id}
+                              className={`notif-list-item ${item.unread ? 'is-unread' : ''}`}
+                              onClick={() => {
+                                setOperationsNotifs((prev) =>
+                                  prev.map((n) => (n.id === item.id ? { ...n, unread: !n.unread } : n))
+                                );
+                              }}
+                              role="article"
+                              tabIndex={0}
+                              title="Click to toggle read status"
+                            >
+                              <div className={`notif-icon-badge ${item.type}`}>
+                                {item.type === 'alert' && <AlertTriangle size={13} strokeWidth={2.4} />}
+                                {item.type === 'success' && <Check size={13} strokeWidth={2.6} />}
+                                {item.type === 'info' && <Info size={13} strokeWidth={2.4} />}
+                                {item.type === 'error' && <AlertCircle size={13} strokeWidth={2.4} />}
+                              </div>
 
-                        <div className="rep-status-footer-row">
-                          <div className="rep-status-uptime">
-                            <span className="rep-uptime-val">99.9%</span>
-                            <span className="rep-uptime-label">Uptime</span>
-                          </div>
-                          <span className="rep-timestamp-label">Last checked: 2 min ago</span>
+                              <div className="notif-text-col">
+                                <span className="notif-title-line">{item.title}</span>
+                                <span className="notif-time-line">{item.time}</span>
+                              </div>
+
+                              {item.unread && (
+                                <span className="notif-unread-dot" title="Unread notification" />
+                              )}
+                            </div>
+                          ))}
                         </div>
                       </div>
                     </section>
                   </div>
                 </div>
+              );
+            }
+
+            if (previewScreen === 'Cameras') {
+              const cameraFeeds = [
+                { id: 'CAM 01', name: 'Main Lobby', status: 'online', recording: true, time: '14:32:08' },
+                { id: 'CAM 02', name: 'North Gate', status: 'online', recording: true, time: '14:32:08' },
+                { id: 'CAM 03', name: 'Loading Bay', status: 'online', recording: false, time: '14:32:07' },
+                { id: 'CAM 04', name: 'Rooftop', status: 'online', recording: true, time: '14:32:08' },
+                { id: 'CAM 05', name: 'Parking Deck', status: 'standby', recording: false, time: null },
+                { id: 'CAM 06', name: 'Server Room', status: 'online', recording: true, time: '14:32:08' },
+              ];
+
+              const recentDetections = [
+                { id: 1, title: 'Motion detected — Rooftop', meta: 'CAM 04 · just now', type: 'alert' },
+                { id: 2, title: 'Person identified — North Gate', meta: 'CAM 02 · 6m ago', type: 'info' },
+                { id: 3, title: 'Loitering cleared — Main Lobby', meta: 'CAM 01 · 22m ago', type: 'success' },
+                { id: 4, title: 'Door forced — Server Room', meta: 'CAM 06 · 34m ago', type: 'alert' },
+                { id: 5, title: 'Vehicle detected — Loading Bay', meta: 'CAM 03 · 48m ago', type: 'info' },
+                { id: 6, title: 'Signal restored — Parking Deck', meta: 'CAM 05 · 1h ago', type: 'success' },
+                { id: 7, title: 'Tailgating flagged — North Gate', meta: 'CAM 02 · 1h ago', type: 'alert' },
+                { id: 8, title: 'Crowd density normal — Rooftop', meta: 'CAM 04 · 2h ago', type: 'success' },
+                { id: 9, title: 'Object left behind — Main Lobby', meta: 'CAM 01 · 2h ago', type: 'info' },
+              ];
+
+              return (
+                <div className="cameras-preview-canvas">
+                  {/* 1. Header Row */}
+                  <div className="cameras-header-row">
+                    <div className="dashboard-title-wrap">
+                      <h1 className="dashboard-page-title">Camera Surveillance</h1>
+                      <button
+                        type="button"
+                        className="dashboard-info-btn"
+                        title="Camera Surveillance System Overview & Live Feeds"
+                        aria-label="Camera Surveillance Information"
+                      >
+                        <Info size={16} />
+                      </button>
+                    </div>
+
+                    <div className="cameras-header-actions">
+                      <div className="live-status-pill" title="Live Video Telemetry Active">
+                        <span className="live-pulsing-dot" />
+                        <span className="live-status-text">LIVE</span>
+                      </div>
+
+                      <button
+                        type="button"
+                        className="btn-add-camera"
+                        title="Add Camera Feed"
+                        aria-label="Add Camera"
+                      >
+                        <Plus size={14} strokeWidth={2.5} />
+                        <span>ADD CAMERA</span>
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* 2. Top Row: 4 KPI Cards */}
+                  <div className="cameras-kpi-grid">
+                    <div className="camera-kpi-card" style={cardSurfaceStyle}>
+                      <span className="camera-kpi-label">CAMERAS ONLINE</span>
+                      <span className="camera-kpi-val">5/6</span>
+                    </div>
+                    <div className="camera-kpi-card" style={cardSurfaceStyle}>
+                      <span className="camera-kpi-label">RECORDING</span>
+                      <span className="camera-kpi-val">4</span>
+                    </div>
+                    <div className="camera-kpi-card" style={cardSurfaceStyle}>
+                      <span className="camera-kpi-label">MOTION ALERTS</span>
+                      <span className="camera-kpi-val">2</span>
+                    </div>
+                    <div className="camera-kpi-card" style={cardSurfaceStyle}>
+                      <span className="camera-kpi-label">STORAGE USED</span>
+                      <span className="camera-kpi-val">82%</span>
+                    </div>
+                  </div>
+
+                  {/* 3. Main Split Grid: Camera Wall (left) + Recent Detections (right) */}
+                  <div className="cameras-main-grid">
+                    {/* Left: Camera Wall */}
+                    <section
+                      className="camera-card camera-wall-card"
+                      style={cardSurfaceStyle}
+                      aria-label="Camera Wall Feeds"
+                    >
+                      <div
+                        className="dashboard-card-header"
+                        style={{
+                          backgroundColor: previewHeaderStyles.backgroundColor,
+                          borderBottom: previewHeaderStyles.borderBottom,
+                        }}
+                      >
+                        <h2 className="dashboard-card-title" style={{ color: previewHeaderStyles.color }}>
+                          Camera Wall
+                        </h2>
+                        <span className="camera-grid-meta" style={{ color: previewHeaderStyles.subtitleColor }}>
+                          2 × 3 grid
+                        </span>
+                      </div>
+
+                      <div className="camera-wall-body">
+                        <div className="camera-feeds-grid">
+                          {cameraFeeds.map((cam) => (
+                            <div key={cam.id} className={`camera-feed-tile ${cam.status}`}>
+                              {/* Top-left: Camera Name & Status pill */}
+                              <div className="cam-tile-top-left">
+                                <span className={`cam-status-dot ${cam.status}`} />
+                                <span className="cam-id-label">{cam.id}</span>
+                              </div>
+
+                              {/* Top-right: REC badge if recording */}
+                              {cam.recording && (
+                                <div className="cam-rec-badge" title="Recording active">
+                                  <span className="cam-rec-dot" />
+                                  <span className="cam-rec-text">REC</span>
+                                </div>
+                              )}
+
+                              {/* Center: Camera Location Watermark */}
+                              <div className="cam-center-watermark">
+                                <span>{cam.name}</span>
+                              </div>
+
+                              {/* Bottom-left: Timestamp */}
+                              {cam.time && (
+                                <div className="cam-timestamp">
+                                  <span>{cam.time}</span>
+                                </div>
+                              )}
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    </section>
+
+                    {/* Right: Recent Detections */}
+                    <section
+                      className="camera-card recent-detections-card"
+                      style={cardSurfaceStyle}
+                      aria-label="Recent Detections"
+                    >
+                      <div
+                        className="dashboard-card-header"
+                        style={{
+                          backgroundColor: previewHeaderStyles.backgroundColor,
+                          borderBottom: previewHeaderStyles.borderBottom,
+                        }}
+                      >
+                        <h2 className="dashboard-card-title" style={{ color: previewHeaderStyles.color }}>
+                          Recent Detections
+                        </h2>
+                      </div>
+
+                      <div className="recent-detections-body">
+                        <div className="detections-list" role="feed" aria-label="Camera detection events">
+                          {recentDetections.map((item) => (
+                            <div key={item.id} className="detection-row" role="article">
+                              <div className={`detection-dot-badge ${item.type}`}>
+                                <span className="detection-dot" />
+                              </div>
+                              <div className="detection-info">
+                                <span className="detection-title">{item.title}</span>
+                                <span className="detection-meta">{item.meta}</span>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </div>
+              );
+            }
+
+            if (previewScreen === 'Reports') {
+              const trendData = [
+                { month: 'Jan', rev: 44, prof: 22 },
+                { month: 'Feb', rev: 68, prof: 32 },
+                { month: 'Mar', rev: 54, prof: 26 },
+                { month: 'Apr', rev: 78, prof: 36 },
+                { month: 'May', rev: 70, prof: 34 },
+                { month: 'Jun', rev: 72, prof: 34 },
+              ];
+
+              const moduleData = [
+                { color: '#3B82F6', height: 52 },
+                { color: '#06B6D4', height: 80 },
+                { color: '#8B5CF6', height: 34 },
+                { color: '#84CC16', height: 48 },
+                { color: '#BE123C', height: 72 },
+              ];
+
+              const reportsTable = [
+                { id: 1, name: 'Q2 Revenue Summary', type: 'Financial', status: 'Ready', date: 'Jun 20' },
+                { id: 2, name: 'Camera Uptime Audit', type: 'Operations', status: 'Ready', date: 'Jun 19' },
+                { id: 3, name: 'User Access Log', type: 'Security', status: 'Ready', date: 'Jun 18' },
+                { id: 4, name: 'Inventory Forecast', type: 'Analytics', status: 'Processing', date: 'Jun 17' },
+              ];
+
+              return (
+                <div className="reports-preview-canvas">
+                  {/* 1. Header Row */}
+                  <div className="reports-header-row">
+                    <div className="dashboard-title-wrap">
+                      <h1 className="dashboard-page-title">Reports</h1>
+                      <button
+                        type="button"
+                        className="dashboard-info-btn"
+                        title="Reports & Analytics Overview"
+                        aria-label="Reports Information"
+                      >
+                        <Info size={16} />
+                      </button>
+                    </div>
+
+                    <button
+                      type="button"
+                      className="btn-export-pdf"
+                      title="Export Comprehensive PDF Report"
+                      aria-label="Export PDF"
+                    >
+                      <ArrowDown size={14} strokeWidth={2.5} />
+                      <span>EXPORT PDF</span>
+                    </button>
+                  </div>
+
+                  {/* 2. Top Row: 4 KPI Cards */}
+                  <div className="reports-kpi-grid">
+                    <div className="report-kpi-card" style={cardSurfaceStyle}>
+                      <span className="report-kpi-label">REPORTS GENERATED</span>
+                      <span className="report-kpi-val">248</span>
+                    </div>
+                    <div className="report-kpi-card" style={cardSurfaceStyle}>
+                      <span className="report-kpi-label">AVG GENERATION</span>
+                      <span className="report-kpi-val">1.2s</span>
+                    </div>
+                    <div className="report-kpi-card" style={cardSurfaceStyle}>
+                      <span className="report-kpi-label">DATA POINTS</span>
+                      <span className="report-kpi-val">84.2K</span>
+                    </div>
+                    <div className="report-kpi-card" style={cardSurfaceStyle}>
+                      <span className="report-kpi-label">SCHEDULED</span>
+                      <span className="report-kpi-val">12</span>
+                    </div>
+                  </div>
+
+                  {/* 3. Middle Row: Two Charts */}
+                  <div className="reports-charts-grid">
+                    {/* Left: Revenue & Profit Trend */}
+                    <section
+                      className="reports-card trend-chart-card"
+                      style={cardSurfaceStyle}
+                      aria-label="Revenue and Profit Trend Chart"
+                    >
+                      <div
+                        className="dashboard-card-header"
+                        style={{
+                          backgroundColor: previewHeaderStyles.backgroundColor,
+                          borderBottom: previewHeaderStyles.borderBottom,
+                        }}
+                      >
+                        <h2 className="dashboard-card-title" style={{ color: previewHeaderStyles.color }}>
+                          Revenue & Profit Trend
+                        </h2>
+                        <span className="reports-card-meta" style={{ color: previewHeaderStyles.subtitleColor }}>
+                          6 months
+                        </span>
+                      </div>
+
+                      <div className="trend-chart-body">
+                        <div className="trend-bars-container">
+                          {trendData.map((item, idx) => (
+                            <div key={idx} className="trend-bar-group">
+                              <div className="trend-bar-track">
+                                <div className="trend-bar-column">
+                                  <div
+                                    className="trend-seg-profit"
+                                    style={{ height: `${item.prof}px` }}
+                                    title={`Profit: ${item.prof * 1000}`}
+                                  />
+                                  <div
+                                    className="trend-seg-revenue"
+                                    style={{ height: `${item.rev}px` }}
+                                    title={`Revenue: ${item.rev * 1000}`}
+                                  />
+                                </div>
+                              </div>
+                              <span className="trend-month-label">{item.month}</span>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    </section>
+
+                    {/* Right: By Module */}
+                    <section
+                      className="reports-card module-chart-card"
+                      style={cardSurfaceStyle}
+                      aria-label="By Module Distribution Chart"
+                    >
+                      <div
+                        className="dashboard-card-header"
+                        style={{
+                          backgroundColor: previewHeaderStyles.backgroundColor,
+                          borderBottom: previewHeaderStyles.borderBottom,
+                        }}
+                      >
+                        <h2 className="dashboard-card-title" style={{ color: previewHeaderStyles.color }}>
+                          By Module
+                        </h2>
+                      </div>
+
+                      <div className="module-chart-body">
+                        <div className="module-bars-container">
+                          {moduleData.map((bar, idx) => (
+                            <div
+                              key={idx}
+                              className="module-bar"
+                              style={{
+                                height: `${bar.height}%`,
+                                backgroundColor: bar.color,
+                              }}
+                            />
+                          ))}
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+
+                  {/* 4. Bottom Row: Recent Reports Table */}
+                  <section
+                    className="reports-card reports-table-card"
+                    style={cardSurfaceStyle}
+                    aria-label="Recent Reports Table"
+                  >
+                    <div
+                      className="dashboard-card-header"
+                      style={{
+                        backgroundColor: previewHeaderStyles.backgroundColor,
+                        borderBottom: previewHeaderStyles.borderBottom,
+                      }}
+                    >
+                      <h2 className="dashboard-card-title" style={{ color: previewHeaderStyles.color }}>
+                        Recent Reports
+                      </h2>
+                    </div>
+
+                    <div className="reports-table-body">
+                      <table className="reports-data-table">
+                        <thead>
+                          <tr>
+                            <th className="th-report">REPORT</th>
+                            <th className="th-type">TYPE</th>
+                            <th className="th-status">STATUS</th>
+                            <th className="th-date">DATE</th>
+                            <th className="th-action"></th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {reportsTable.map((row) => (
+                            <tr key={row.id} className="reports-table-row">
+                              <td className="td-report-name">{row.name}</td>
+                              <td className="td-type">{row.type}</td>
+                              <td className="td-status">
+                                <span className={`report-status-pill ${row.status.toLowerCase()}`}>
+                                  {row.status}
+                                </span>
+                              </td>
+                              <td className="td-date">{row.date}</td>
+                              <td className="td-action">
+                                <button
+                                  type="button"
+                                  className="btn-pdf-download"
+                                  title={`Download ${row.name} as PDF`}
+                                  aria-label={`Download ${row.name} PDF`}
+                                >
+                                  <ArrowDown size={11} strokeWidth={2.4} />
+                                  <span>PDF</span>
+                                </button>
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  </section>
+                </div>
+              );
+            }
+
+            if (previewScreen === 'Orders') {
+              const ordersList = [
+                { id: 'ORD-1042', customer: 'Acme Corporation', status: 'Delivered', amount: '$12,400', date: 'Jun 18' },
+                { id: 'ORD-1041', customer: 'Globex Ltd', status: 'Processing', amount: '$8,750', date: 'Jun 17' },
+                { id: 'ORD-1040', customer: 'Initech', status: 'Pending', amount: '$5,200', date: 'Jun 16' },
+                { id: 'ORD-1039', customer: 'Umbrella Co', status: 'Shipped', amount: '$22,100', date: 'Jun 15' },
+                { id: 'ORD-1038', customer: 'Waystar Royco', status: 'Delivered', amount: '$9,800', date: 'Jun 14' },
+                { id: 'ORD-1037', customer: 'Stark Industries', status: 'Processing', amount: '$31,500', date: 'Jun 13' },
+                { id: 'ORD-1036', customer: 'Wayne Enterprises', status: 'Delivered', amount: '$18,240', date: 'Jun 12' },
+                { id: 'ORD-1035', customer: 'Soylent Corp', status: 'Pending', amount: '$4,120', date: 'Jun 11' },
+                { id: 'ORD-1034', customer: 'Hooli Inc', status: 'Shipped', amount: '$27,900', date: 'Jun 10' },
+                { id: 'ORD-1033', customer: 'Cyberdyne Systems', status: 'Delivered', amount: '$14,650', date: 'Jun 09' },
+                { id: 'ORD-1032', customer: 'Massive Dynamic', status: 'Processing', amount: '$10,300', date: 'Jun 08' },
+                { id: 'ORD-1031', customer: 'Tyrell Corp', status: 'Delivered', amount: '$16,780', date: 'Jun 07' },
+              ];
+
+              const filteredOrders = ordersList.filter((ord) => {
+                const matchesFilter = orderStatusFilter === 'All' || ord.status === orderStatusFilter;
+                const matchesSearch =
+                  ord.id.toLowerCase().includes(orderSearch.toLowerCase()) ||
+                  ord.customer.toLowerCase().includes(orderSearch.toLowerCase());
+                return matchesFilter && matchesSearch;
+              });
+
+              return (
+                <div className="orders-preview-canvas">
+                  {/* 1. Header Row */}
+                  <div className="orders-header-row">
+                    <div className="dashboard-title-wrap">
+                      <h1 className="dashboard-page-title">Orders</h1>
+                      <button
+                        type="button"
+                        className="dashboard-info-btn"
+                        title="Orders & Transaction Overview"
+                        aria-label="Orders Information"
+                      >
+                        <Info size={16} />
+                      </button>
+                    </div>
+
+                    <button
+                      type="button"
+                      className="btn-new-order"
+                      title="Create New Order Record"
+                      aria-label="New Order"
+                    >
+                      <Plus size={14} strokeWidth={2.5} />
+                      <span>NEW ORDER</span>
+                    </button>
+                  </div>
+
+                  {/* 2. Main Parent Orders Card */}
+                  <section
+                    className="orders-card"
+                    style={cardSurfaceStyle}
+                    aria-label="Orders Management Table"
+                  >
+                    {/* Search & Status Filters Bar */}
+                    <div className="orders-toolbar-row">
+                      <div className="orders-search-wrap">
+                        <Search size={14} className="orders-search-icon" />
+                        <input
+                          type="text"
+                          className="orders-search-input"
+                          placeholder="Search orders..."
+                          value={orderSearch}
+                          onChange={(e) => setOrderSearch(e.target.value)}
+                          aria-label="Search orders"
+                        />
+                      </div>
+
+                      <div className="orders-filter-pills" role="radiogroup" aria-label="Order status filter">
+                        {['All', 'Delivered', 'Processing', 'Pending'].map((filter) => {
+                          const isActive = orderStatusFilter === filter;
+                          return (
+                            <button
+                              key={filter}
+                              type="button"
+                              className={`order-filter-pill ${isActive ? 'active' : ''}`}
+                              onClick={() => setOrderStatusFilter(filter)}
+                              aria-checked={isActive}
+                              role="radio"
+                            >
+                              {filter}
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </div>
+
+                    {/* Table Container */}
+                    <div className="orders-table-body">
+                      <table className="orders-data-table">
+                        <thead>
+                          <tr>
+                            <th className="th-order-id">ORDER ID</th>
+                            <th className="th-customer">CUSTOMER</th>
+                            <th className="th-order-status">STATUS</th>
+                            <th className="th-amount">AMOUNT</th>
+                            <th className="th-order-date">DATE</th>
+                            <th className="th-order-action"></th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {filteredOrders.map((ord) => (
+                            <tr key={ord.id} className="orders-table-row">
+                              <td className="td-order-id">
+                                <span className="order-id-link">{ord.id}</span>
+                              </td>
+                              <td className="td-customer">{ord.customer}</td>
+                              <td className="td-order-status">
+                                <span className={`order-status-pill ${ord.status.toLowerCase()}`}>
+                                  {ord.status}
+                                </span>
+                              </td>
+                              <td className="td-amount">{ord.amount}</td>
+                              <td className="td-order-date">{ord.date}</td>
+                              <td className="td-order-action">
+                                <button
+                                  type="button"
+                                  className="btn-order-view"
+                                  title={`View order details for ${ord.id}`}
+                                  aria-label={`View order ${ord.id}`}
+                                >
+                                  View
+                                </button>
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+
+                    {/* Footer / Pagination */}
+                    <div className="orders-table-footer">
+                      <span className="orders-pagination-info">Showing 1–12 of 1,284</span>
+
+                      <div className="orders-pagination-controls" aria-label="Pagination">
+                        <button
+                          type="button"
+                          className="btn-page-nav"
+                          disabled={orderPage === 1}
+                          onClick={() => setOrderPage((p) => Math.max(1, p - 1))}
+                          aria-label="Previous page"
+                        >
+                          <ChevronLeft size={14} />
+                        </button>
+                        <button
+                          type="button"
+                          className={`btn-page-num ${orderPage === 1 ? 'active' : ''}`}
+                          onClick={() => setOrderPage(1)}
+                        >
+                          1
+                        </button>
+                        <button
+                          type="button"
+                          className={`btn-page-num ${orderPage === 2 ? 'active' : ''}`}
+                          onClick={() => setOrderPage(2)}
+                        >
+                          2
+                        </button>
+                        <button
+                          type="button"
+                          className="btn-page-nav"
+                          disabled={orderPage === 2}
+                          onClick={() => setOrderPage((p) => Math.min(2, p + 1))}
+                          aria-label="Next page"
+                        >
+                          <ChevronRight size={14} />
+                        </button>
+                      </div>
+                    </div>
+                  </section>
+                </div>
+              );
+            }
+
+            if (previewScreen !== 'Dashboard') {
+              return (
+                <div className="dashboard-preview-canvas">
+                  <div className="dashboard-header-row">
+                    <div className="dashboard-title-wrap">
+                      <h1 className="dashboard-page-title">{previewScreen}</h1>
+                      <button
+                        type="button"
+                        className="dashboard-info-btn"
+                        title={`${previewScreen} Preview`}
+                        aria-label={`${previewScreen} Information`}
+                      >
+                        <Info size={16} />
+                      </button>
+                    </div>
+                  </div>
+                  <section className="dashboard-card" style={cardSurfaceStyle}>
+                    <div
+                      className="dashboard-card-header"
+                      style={{
+                        backgroundColor: previewHeaderStyles.backgroundColor,
+                        borderBottom: previewHeaderStyles.borderBottom,
+                      }}
+                    >
+                      <h2 className="dashboard-card-title" style={{ color: previewHeaderStyles.color }}>
+                        {`${previewScreen} Overview`}
+                      </h2>
+                      <span className="dashboard-card-meta" style={{ color: previewHeaderStyles.subtitleColor }}>
+                        Live System
+                      </span>
+                    </div>
+                    <div
+                      className="dashboard-card-body"
+                      style={{
+                        minHeight: '400px',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        flexDirection: 'column',
+                        gap: '12px',
+                      }}
+                    >
+                      <div
+                        style={{
+                          ...previewNestedStyles,
+                          padding: '24px 32px',
+                          borderRadius: '12px',
+                          textAlign: 'center',
+                          maxWidth: '440px',
+                        }}
+                      >
+                        <h3 style={{ fontSize: '16px', fontWeight: 600, color: 'var(--text-primary)', margin: '0 0 6px 0' }}>
+                          {`${previewScreen} Module`}
+                        </h3>
+                        <p style={{ fontSize: '13px', color: 'var(--text-secondary)', margin: 0, lineHeight: 1.5 }}>
+                          Previewing active layout for {previewScreen}. Switch to <strong>Operations</strong> or <strong>Dashboard</strong> to view full live systems.
+                        </p>
+                      </div>
+                    </div>
+                  </section>
+                </div>
+              );
+            }
+
+            return (
+              <div className="dashboard-preview-canvas">
+                {/* 1. Dashboard Header */}
+                <div className="dashboard-header-row">
+                  <div className="dashboard-title-wrap">
+                    <h1 className="dashboard-page-title">{previewScreen === 'Components' ? 'Dashboard' : previewScreen}</h1>
+                    <button
+                      type="button"
+                      className="dashboard-info-btn"
+                      title={`${previewScreen} Overview & Key Performance Metrics`}
+                      aria-label="Dashboard Information"
+                    >
+                      <Info size={16} />
+                    </button>
+                  </div>
+                  <button
+                    type="button"
+                    className="dashboard-new-action-btn"
+                    aria-label="Create New Record"
+                  >
+                    <Plus size={14} strokeWidth={2.5} />
+                    <span>NEW</span>
+                  </button>
+                </div>
+
+                {/* 2. Performance Overview (Large Parent Card) */}
+                <section
+                  className="dashboard-card perf-overview-card"
+                  style={cardSurfaceStyle}
+                  aria-label="Performance Overview"
+                >
+                  <div
+                    className="dashboard-card-header"
+                    style={{
+                      backgroundColor: previewHeaderStyles.backgroundColor,
+                      borderBottom: previewHeaderStyles.borderBottom,
+                    }}
+                  >
+                    <h2 className="dashboard-card-title" style={{ color: previewHeaderStyles.color }}>
+                      Performance Overview
+                    </h2>
+                    <span className="dashboard-card-meta" style={{ color: previewHeaderStyles.subtitleColor }}>
+                      This month
+                    </span>
+                  </div>
+
+                  <div className="dashboard-card-body perf-overview-body">
+                    <div className="perf-kpi-grid">
+                      {/* KPI 1: Revenue */}
+                      <div
+                        className="perf-kpi-card"
+                        style={{
+                          ...previewNestedStyles,
+                          borderRadius: '10px',
+                        }}
+                      >
+                        <span className="kpi-label">REVENUE</span>
+                        <span className="kpi-value">$2.41M</span>
+                        <div className="kpi-trend-pill positive">
+                          <span className="trend-arrow">▲</span>
+                          <span>+12.5%</span>
+                        </div>
+                      </div>
+
+                      {/* KPI 2: Open Orders */}
+                      <div
+                        className="perf-kpi-card"
+                        style={{
+                          ...previewNestedStyles,
+                          borderRadius: '10px',
+                        }}
+                      >
+                        <span className="kpi-label">OPEN ORDERS</span>
+                        <span className="kpi-value">1,284</span>
+                        <div className="kpi-trend-pill positive">
+                          <span className="trend-arrow">▲</span>
+                          <span>+3.2%</span>
+                        </div>
+                      </div>
+
+                      {/* KPI 3: Inventory */}
+                      <div
+                        className="perf-kpi-card"
+                        style={{
+                          ...previewNestedStyles,
+                          borderRadius: '10px',
+                        }}
+                      >
+                        <span className="kpi-label">INVENTORY</span>
+                        <span className="kpi-value">8,540</span>
+                        <div className="kpi-trend-pill negative">
+                          <span className="trend-arrow">▼</span>
+                          <span>-1.8%</span>
+                        </div>
+                      </div>
+
+                      {/* KPI 4: Active Users */}
+                      <div
+                        className="perf-kpi-card"
+                        style={{
+                          ...previewNestedStyles,
+                          borderRadius: '10px',
+                        }}
+                      >
+                        <span className="kpi-label">ACTIVE USERS</span>
+                        <span className="kpi-value">342</span>
+                        <div className="kpi-trend-pill positive">
+                          <span className="trend-arrow">▲</span>
+                          <span>+5</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </section>
+
+                {/* 3 & 4. Lower Two-Column Section: Revenue Trend & Recent Activity */}
+                <div className="dashboard-lower-grid">
+                  {/* Revenue Trend Card */}
+                  <section
+                    className="dashboard-card revenue-trend-card"
+                    style={cardSurfaceStyle}
+                    aria-label="Revenue Trend"
+                  >
+                    <div
+                      className="dashboard-card-header"
+                      style={{
+                        backgroundColor: previewHeaderStyles.backgroundColor,
+                        borderBottom: previewHeaderStyles.borderBottom,
+                      }}
+                    >
+                      <h2 className="dashboard-card-title" style={{ color: previewHeaderStyles.color }}>
+                        Revenue Trend
+                      </h2>
+                      <div className="chart-legend">
+                        <div className="legend-item">
+                          <span className="legend-box legend-box-revenue" />
+                          <span className="legend-text" style={{ color: previewHeaderStyles.subtitleColor }}>
+                            Revenue
+                          </span>
+                        </div>
+                        <div className="legend-item">
+                          <span className="legend-box legend-box-profit" />
+                          <span className="legend-text" style={{ color: previewHeaderStyles.subtitleColor }}>
+                            Profit
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="dashboard-card-body revenue-trend-body">
+                      <div className="bar-chart-container">
+                        {/* Horizontal guide lines */}
+                        <div className="chart-grid-guides" aria-hidden="true">
+                          <div className="chart-guide-line" style={{ bottom: '75%' }} />
+                          <div className="chart-guide-line" style={{ bottom: '50%' }} />
+                          <div className="chart-guide-line" style={{ bottom: '25%' }} />
+                          <div className="chart-guide-line" style={{ bottom: '0%' }} />
+                        </div>
+
+                        {/* Stacked bar chart columns */}
+                        <div className="chart-bars-row">
+                          {chartData.map((item, idx) => {
+                            const totalHeight = Math.min(100, item.revHeight + item.profHeight);
+                            const profitPercentOfBar = (item.profHeight / (item.revHeight + item.profHeight)) * 100;
+                            const revPercentOfBar = 100 - profitPercentOfBar;
+
+                            return (
+                              <div
+                                key={item.month}
+                                className="chart-bar-group"
+                                onMouseEnter={() => setHoveredBarIndex(idx)}
+                                onMouseLeave={() => setHoveredBarIndex(null)}
+                              >
+                                <div className="chart-bar-track">
+                                  <div
+                                    className="chart-bar-column"
+                                    style={{ height: `${totalHeight}%` }}
+                                  >
+                                    <div
+                                      className="bar-seg-profit"
+                                      style={{ height: `${profitPercentOfBar}%` }}
+                                      title={`${item.month} Profit: ${item.profVal}`}
+                                    />
+                                    <div
+                                      className="bar-seg-revenue"
+                                      style={{ height: `${revPercentOfBar}%` }}
+                                      title={`${item.month} Revenue: ${item.revVal}`}
+                                    />
+                                  </div>
+
+                                  {hoveredBarIndex === idx && (
+                                    <div className="chart-bar-tooltip">
+                                      <span className="tooltip-month">{item.month}</span>
+                                      <span className="tooltip-line profit">Profit: {item.profVal}</span>
+                                      <span className="tooltip-line revenue">Revenue: {item.revVal}</span>
+                                    </div>
+                                  )}
+                                </div>
+                                <span className="chart-month-label">{item.month}</span>
+                              </div>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    </div>
+                  </section>
+
+                  {/* Recent Activity Card */}
+                  <section
+                    className="dashboard-card recent-activity-card"
+                    style={cardSurfaceStyle}
+                    aria-label="Recent Activity"
+                  >
+                    <div
+                      className="dashboard-card-header"
+                      style={{
+                        backgroundColor: previewHeaderStyles.backgroundColor,
+                        borderBottom: previewHeaderStyles.borderBottom,
+                      }}
+                    >
+                      <h2 className="dashboard-card-title" style={{ color: previewHeaderStyles.color }}>
+                        Recent Activity
+                      </h2>
+                    </div>
+
+                    <div className="dashboard-card-body recent-activity-body">
+                      <ul className="activity-list">
+                        <li className="activity-item">
+                          <div className="activity-icon-badge success" aria-hidden="true">
+                            <Check size={13} strokeWidth={2.5} />
+                          </div>
+                          <div className="activity-details">
+                            <span className="activity-text">Order ORD-1042 delivered to Acme Corp</span>
+                            <span className="activity-time">2m ago</span>
+                          </div>
+                        </li>
+
+                        <li className="activity-item">
+                          <div className="activity-icon-badge primary" aria-hidden="true">
+                            <DollarSign size={13} strokeWidth={2.5} />
+                          </div>
+                          <div className="activity-details">
+                            <span className="activity-text">Invoice #4821 paid — $12,400</span>
+                            <span className="activity-time">18m ago</span>
+                          </div>
+                        </li>
+
+                        <li className="activity-item">
+                          <div className="activity-icon-badge warning" aria-hidden="true">
+                            <AlertCircle size={13} strokeWidth={2.5} />
+                          </div>
+                          <div className="activity-details">
+                            <span className="activity-text">Low stock alert: Widget Pro (12 left)</span>
+                            <span className="activity-time">1h ago</span>
+                          </div>
+                        </li>
+
+                        <li className="activity-item">
+                          <div className="activity-icon-badge info" aria-hidden="true">
+                            <Plus size={13} strokeWidth={2.5} />
+                          </div>
+                          <div className="activity-details">
+                            <span className="activity-text">New customer onboarded: Globex Ltd</span>
+                            <span className="activity-time">3h ago</span>
+                          </div>
+                        </li>
+                      </ul>
+                    </div>
+                  </section>
+                </div>
+
+                {/* 5. Low Stock Alert Toast */}
+                {showLowStockToast && (
+                  <div className="dashboard-toast-container" role="status" aria-live="polite">
+                    <div className="dashboard-toast-card">
+                      <div className="toast-icon-badge" aria-hidden="true">
+                        <AlertCircle size={15} strokeWidth={2.5} />
+                      </div>
+                      <div className="toast-body">
+                        <div className="toast-head-row">
+                          <span className="toast-title">Low stock alert</span>
+                          <button
+                            type="button"
+                            className="toast-dismiss-btn"
+                            onClick={() => setShowLowStockToast(false)}
+                            aria-label="Dismiss low stock alert"
+                            title="Dismiss alert"
+                          >
+                            <X size={13} />
+                          </button>
+                        </div>
+                        <p className="toast-desc">Widget Pro is down to 12 units left.</p>
+                      </div>
+                    </div>
+                  </div>
+                )}
               </div>
             );
           })() : (
-            <div className="cards-grid">
+            <>
+              {/* Page Title & Context Header */}
+              <div className="page-title-row">
+                <h1 className="page-title">
+                  <span>Component Library</span>
+                  <Info
+                    size={16}
+                    className="info-icon"
+                    title="Design System Component Showcase"
+                  />
+                </h1>
+                <span className="badge-counter">
+                  {`Active: ${THEME_PRESETS[activePreset].name} (${isDarkMode ? 'Dark' : 'Light'})`}
+                </span>
+              </div>
+
+              <div className="cards-grid">
             {/* ROW 1: Typography Scale (Left) + Selection States (Right) */}
             <div className="grid-row-split">
               {/* STANDARD CARD 1: Typography Scale */}
@@ -2042,7 +2980,8 @@ export default function App() {
               </section>
             </div>
           </div>
-        )}
+        </>
+      )}
         </div>
       </main>
 
