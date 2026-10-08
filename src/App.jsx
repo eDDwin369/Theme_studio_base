@@ -41,6 +41,14 @@ import {
 } from 'lucide-react';
 import oomnieyeLogo from './assets/oomnieye-logo.png';
 import allcadLogo from './assets/allcad-logo.png';
+import camLobbyImg from './assets/cctv-cam01-lobby.jpg';
+import camNorthGateImg from './assets/cctv-cam02-northgate.jpg';
+import camLoadingBayImg from './assets/cctv-cam03-loadingbay.jpg';
+import camRooftopImg from './assets/cctv-cam04-rooftop.jpg';
+import camParkingDeckImg from './assets/cctv-cam05-parkingdeck.jpg';
+import camServerRoomImg from './assets/cctv-cam06-serverroom.jpg';
+import manhattanSatelliteImg from './assets/manhattan-satellite.jpg';
+import manhattanStreetsImg from './assets/manhattan-streets.jpg';
 import './App.css';
 
 import {
@@ -173,6 +181,20 @@ export default function App() {
   // Previewing Screen State & Selector Card
   const [showPreviewScreenCard, setShowPreviewScreenCard] = useState(true);
   const [previewScreen, setPreviewScreen] = useState('Dashboard');
+
+  // Live Surveillance Feed Clock
+  const [liveCctvTime, setLiveCctvTime] = useState(() => {
+    const d = new Date();
+    return d.toTimeString().split(' ')[0];
+  });
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      const d = new Date();
+      setLiveCctvTime(d.toTimeString().split(' ')[0]);
+    }, 1000);
+    return () => clearInterval(timer);
+  }, []);
 
   // Operations Center Preview States
   const [mapZoom, setMapZoom] = useState(100);
@@ -1617,13 +1639,145 @@ export default function App() {
 
                       <div className="live-map-card-body">
                         <div className="live-map-canvas-area">
+                          {/* 1. Interactive Zoomable Map Viewport */}
+                          <div
+                            className={`map-interactive-viewport ${activeMapLayer === 'Satellite' ? 'layer-satellite' : 'layer-streets'}`}
+                            style={{
+                              transform: `scale(${mapZoom / 100})`,
+                              transformOrigin: 'center center',
+                            }}
+                          >
+                            {/* Realistic Base Map Layer */}
+                            <img
+                              src={activeMapLayer === 'Satellite' ? manhattanSatelliteImg : manhattanStreetsImg}
+                              alt="Manhattan Operations Map"
+                              className="map-base-layer-img"
+                            />
+
+                            {/* Theme Tone Overlay */}
+                            <div className="map-theme-tint-overlay" />
+
+                            {/* Geographic Street & Landmark Labels */}
+                            <div className="map-labels-layer" aria-hidden="true">
+                              <span className="map-geo-label water hudson">HUDSON RIVER</span>
+                              <span className="map-geo-label water east">EAST RIVER</span>
+                              <span className="map-geo-label road broadway">BROADWAY</span>
+                              <span className="map-geo-label road fdr">FDR DRIVE</span>
+                              <span className="map-geo-label road west-st">WEST ST</span>
+                              <span className="map-geo-label landmark wtc">ONE WORLD TRADE</span>
+                              <span className="map-geo-label landmark battery">BATTERY PARK</span>
+                              <span className="map-geo-label landmark brooklyn-br">BROOKLYN BRIDGE</span>
+                            </div>
+
+                            {/* Operational Route / Path SVG Layer */}
+                            <svg className="map-routes-svg" viewBox="0 0 1000 600" preserveAspectRatio="none" aria-hidden="true">
+                              <defs>
+                                <linearGradient id="opRouteGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                                  <stop offset="0%" stopColor="var(--brand-primary)" stopOpacity="0.85" />
+                                  <stop offset="100%" stopColor="var(--brand-highlight, #38BDF8)" stopOpacity="0.95" />
+                                </linearGradient>
+                              </defs>
+
+                              {/* Route background halo */}
+                              <path
+                                d="M 310 215 L 340 310 L 380 348 L 460 370 L 640 360"
+                                fill="none"
+                                stroke="var(--brand-primary)"
+                                strokeWidth="6"
+                                strokeOpacity="0.22"
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                              />
+                              {/* Glowing Animated Dash Route */}
+                              <path
+                                className="map-animated-route-line"
+                                d="M 310 215 L 340 310 L 380 348 L 460 370 L 640 360"
+                                fill="none"
+                                stroke="url(#opRouteGrad)"
+                                strokeWidth="3"
+                                strokeDasharray="8 6"
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                              />
+                              {/* Secondary feeder connecting path */}
+                              <path
+                                d="M 540 168 L 460 370"
+                                fill="none"
+                                stroke="var(--brand-secondary, #25C6E8)"
+                                strokeWidth="2.5"
+                                strokeDasharray="5 5"
+                                strokeOpacity="0.75"
+                                strokeLinecap="round"
+                              />
+                            </svg>
+
+                            {/* Operational Marker 1 (Primary Location Marker: 40.7128, -74.0060) */}
+                            <div
+                              className={`map-op-marker primary-hq ${isLocating ? 'locating-focus' : ''}`}
+                              style={{ left: '38%', top: '58%' }}
+                              title="HQ · Operations Base (40.7128, -74.0060)"
+                            >
+                              <div className="marker-beacon-rings">
+                                <span className="beacon-ring ring-1" />
+                                <span className="beacon-ring ring-2" />
+                                <span className="beacon-center-dot" />
+                              </div>
+                              <div className="marker-callout-pill primary">
+                                <span className="marker-title">HQ · Operations Base</span>
+                                <span className="marker-coord">40.7128, -74.0060</span>
+                              </div>
+                            </div>
+
+                            {/* Operational Marker 2: North Gate */}
+                            <div
+                              className="map-op-marker secondary-gate"
+                              style={{ left: '31%', top: '36%' }}
+                              title="North Gate Checkpoint"
+                            >
+                              <div className="marker-dot-badge green">
+                                <span className="marker-dot-inner" />
+                              </div>
+                              <div className="marker-callout-pill">
+                                <span className="marker-title">Station 02 · North Gate</span>
+                              </div>
+                            </div>
+
+                            {/* Operational Marker 3: Terminal Pier 17 */}
+                            <div
+                              className="map-op-marker secondary-dock"
+                              style={{ left: '64%', top: '60%' }}
+                              title="Terminal Bay · Loading Pier"
+                            >
+                              <div className="marker-dot-badge amber">
+                                <span className="marker-dot-inner" />
+                              </div>
+                              <div className="marker-callout-pill">
+                                <span className="marker-title">Terminal Bay · Pier 17</span>
+                              </div>
+                            </div>
+
+                            {/* Operational Marker 4: Patrol Unit #4 */}
+                            <div
+                              className="map-op-marker secondary-patrol"
+                              style={{ left: '54%', top: '28%' }}
+                              title="Patrol Unit #4 · Active"
+                            >
+                              <div className="marker-dot-badge blue">
+                                <span className="marker-dot-inner" />
+                              </div>
+                              <div className="marker-callout-pill">
+                                <span className="marker-title">Patrol Unit #4 · Active</span>
+                              </div>
+                            </div>
+                          </div>
+
                           {/* Location Badge */}
                           <div className={`map-location-badge ${isLocating ? 'locating-pulse' : ''}`}>
                             <Crosshair size={13} className="location-target-icon" />
                             <span>40.7128, -74.0060 · Manhattan</span>
                           </div>
 
-                          {/* Center Treatment */}
+                          {/* Center / Top Context Watermark */}
                           <div className="map-center-watermark">
                             <span className="map-watermark-dot">●</span>
                             <span className="map-watermark-text">
@@ -1752,12 +1906,12 @@ export default function App() {
 
             if (previewScreen === 'Cameras') {
               const cameraFeeds = [
-                { id: 'CAM 01', name: 'Main Lobby', status: 'online', recording: true, time: '14:32:08' },
-                { id: 'CAM 02', name: 'North Gate', status: 'online', recording: true, time: '14:32:08' },
-                { id: 'CAM 03', name: 'Loading Bay', status: 'online', recording: false, time: '14:32:07' },
-                { id: 'CAM 04', name: 'Rooftop', status: 'online', recording: true, time: '14:32:08' },
-                { id: 'CAM 05', name: 'Parking Deck', status: 'standby', recording: false, time: null },
-                { id: 'CAM 06', name: 'Server Room', status: 'online', recording: true, time: '14:32:08' },
+                { id: 'CAM 01', name: 'Main Lobby', status: 'online', recording: true, time: '14:32:08', image: camLobbyImg, tag: 'PERSON · 0.92', tagType: 'person' },
+                { id: 'CAM 02', name: 'North Gate', status: 'online', recording: true, time: '14:32:08', image: camNorthGateImg, tag: 'VEHICLE · 0.96', tagType: 'vehicle' },
+                { id: 'CAM 03', name: 'Loading Bay', status: 'online', recording: false, time: '14:32:07', image: camLoadingBayImg, tag: 'FORKLIFT · 0.88', tagType: 'forklift' },
+                { id: 'CAM 04', name: 'Rooftop', status: 'online', recording: true, time: '14:32:08', image: camRooftopImg, tag: 'ZONE 4 · SECURE', tagType: 'zone' },
+                { id: 'CAM 05', name: 'Parking Deck', status: 'standby', recording: false, time: null, image: camParkingDeckImg, tag: 'STANDBY', tagType: 'standby' },
+                { id: 'CAM 06', name: 'Server Room', status: 'online', recording: true, time: '14:32:08', image: camServerRoomImg, tag: 'RACK 10-18 · NORMAL', tagType: 'rack' },
               ];
 
               const recentDetections = [
@@ -1853,6 +2007,45 @@ export default function App() {
                         <div className="camera-feeds-grid">
                           {cameraFeeds.map((cam) => (
                             <div key={cam.id} className={`camera-feed-tile ${cam.status}`}>
+                              {/* Background Realistic Surveillance Video Footage */}
+                              <div className="cctv-footage-wrapper">
+                                <img
+                                  src={cam.image}
+                                  alt={`${cam.id} — ${cam.name} live surveillance feed`}
+                                  className={`cctv-footage-img ${cam.id.toLowerCase().replace(' ', '-')}`}
+                                />
+                                <div className="cctv-vignette-overlay" />
+                                <div className="cctv-scanlines" />
+                                <div className="cctv-scan-beam" />
+                              </div>
+
+                              {/* Subtle CCTV Scene Tracking Box */}
+                              {cam.status === 'online' && (
+                                <div className={`cctv-hud-tracking ${cam.tagType}`}>
+                                  <div className="cctv-track-box">
+                                    <span className="cctv-track-label">{cam.tag}</span>
+                                  </div>
+                                </div>
+                              )}
+
+                              {/* Server Room Rack Blinkers */}
+                              {cam.id === 'CAM 06' && (
+                                <div className="cctv-server-leds" aria-hidden="true">
+                                  <span className="server-led green" />
+                                  <span className="server-led cyan" />
+                                  <span className="server-led green" />
+                                  <span className="server-led blue" />
+                                </div>
+                              )}
+
+                              {/* Standby Status Banner for CAM 05 */}
+                              {cam.status === 'standby' && (
+                                <div className="cctv-standby-banner">
+                                  <span className="standby-pulse-dot" />
+                                  <span>MOTION DETECTION STANDBY</span>
+                                </div>
+                              )}
+
                               {/* Top-left: Camera Name & Status pill */}
                               <div className="cam-tile-top-left">
                                 <span className={`cam-status-dot ${cam.status}`} />
@@ -1872,12 +2065,17 @@ export default function App() {
                                 <span>{cam.name}</span>
                               </div>
 
-                              {/* Bottom-left: Timestamp */}
-                              {cam.time && (
+                              {/* Bottom-left: Real-time Live Timestamp */}
+                              {cam.status === 'online' ? (
                                 <div className="cam-timestamp">
-                                  <span>{cam.time}</span>
+                                  <span>{liveCctvTime || cam.time}</span>
                                 </div>
-                              )}
+                              ) : null}
+
+                              {/* Bottom-right: Stream Quality Telemetry */}
+                              <div className="cam-telemetry">
+                                <span>{cam.status === 'online' ? '1080P · 24FPS' : 'SIGNAL IDLE'}</span>
+                              </div>
                             </div>
                           ))}
                         </div>

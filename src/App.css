@@ -3093,19 +3093,340 @@ html, body {
   border-radius: 9px;
   overflow: hidden;
   background-color: #0E1626;
-  background-image: 
-    repeating-linear-gradient(
-      -45deg,
-      #131C30 0px,
-      #131C30 14px,
-      #0E1626 14px,
-      #0E1626 28px
-    );
   display: flex;
   align-items: center;
   justify-content: center;
   box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.45);
-  border: 1px solid rgba(255, 255, 255, 0.07);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+[data-theme='light'] .live-map-canvas-area {
+  background-color: #E2E8F0;
+  border-color: var(--border-default, #E2E8F0);
+  box-shadow: inset 0 1px 4px rgba(0, 0, 0, 0.08);
+}
+
+/* 1. Interactive Zoomable Map Viewport */
+.map-interactive-viewport {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  transition: transform 260ms cubic-bezier(0.2, 0, 0, 1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.map-base-layer-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  display: block;
+  user-select: none;
+  pointer-events: none;
+  transition: filter 300ms ease, opacity 300ms ease;
+}
+
+/* Light / Dark Mode Color Grading */
+[data-theme='light'] .map-interactive-viewport.layer-streets .map-base-layer-img {
+  filter: brightness(1.02) contrast(1.04) saturate(1.08);
+}
+
+[data-theme='dark'] .map-interactive-viewport.layer-streets .map-base-layer-img {
+  filter: invert(0.92) hue-rotate(185deg) contrast(1.15) brightness(0.82) saturate(1.2);
+}
+
+[data-theme='light'] .map-interactive-viewport.layer-satellite .map-base-layer-img {
+  filter: brightness(1.02) contrast(1.08) saturate(1.1);
+}
+
+[data-theme='dark'] .map-interactive-viewport.layer-satellite .map-base-layer-img {
+  filter: brightness(0.8) contrast(1.2) saturate(0.88);
+}
+
+/* Atmospheric Map Tint Overlay */
+.map-theme-tint-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  pointer-events: none;
+  background: radial-gradient(circle at center, transparent 40%, rgba(0, 0, 0, 0.18) 100%);
+  z-index: 1;
+}
+
+[data-theme='dark'] .map-theme-tint-overlay {
+  background: radial-gradient(circle at center, transparent 45%, rgba(10, 16, 28, 0.45) 100%);
+}
+
+/* Geographic Labels Layer */
+.map-labels-layer {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  pointer-events: none;
+  z-index: 2;
+}
+
+.map-geo-label {
+  position: absolute;
+  font-family: var(--font-sans);
+  font-weight: 700;
+  text-transform: uppercase;
+  user-select: none;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.65);
+}
+
+.map-geo-label.water {
+  color: rgba(56, 189, 248, 0.55);
+  font-size: 11px;
+  letter-spacing: 0.22em;
+  font-weight: 600;
+}
+
+[data-theme='light'] .map-geo-label.water {
+  color: rgba(3, 105, 161, 0.65);
+  text-shadow: none;
+}
+
+.map-geo-label.water.hudson {
+  top: 36%;
+  left: 8%;
+  transform: rotate(-75deg);
+}
+
+.map-geo-label.water.east {
+  top: 44%;
+  right: 12%;
+  transform: rotate(65deg);
+}
+
+.map-geo-label.road {
+  font-size: 8px;
+  letter-spacing: 0.1em;
+  color: rgba(148, 163, 184, 0.75);
+}
+
+[data-theme='light'] .map-geo-label.road {
+  color: rgba(51, 65, 85, 0.75);
+  text-shadow: 0 1px 2px rgba(255, 255, 255, 0.8);
+}
+
+.map-geo-label.road.broadway {
+  top: 32%;
+  left: 45%;
+  transform: rotate(35deg);
+}
+
+.map-geo-label.road.fdr {
+  top: 26%;
+  right: 22%;
+  transform: rotate(70deg);
+}
+
+.map-geo-label.road.west-st {
+  top: 42%;
+  left: 21%;
+  transform: rotate(-78deg);
+}
+
+.map-geo-label.landmark {
+  font-size: 8.5px;
+  letter-spacing: 0.05em;
+  color: rgba(226, 232, 240, 0.8);
+  font-weight: 600;
+}
+
+[data-theme='light'] .map-geo-label.landmark {
+  color: rgba(15, 23, 42, 0.8);
+  text-shadow: 0 1px 2px rgba(255, 255, 255, 0.8);
+}
+
+.map-geo-label.landmark.wtc {
+  top: 50%;
+  left: 27%;
+}
+
+.map-geo-label.landmark.battery {
+  bottom: 12%;
+  left: 31%;
+}
+
+.map-geo-label.landmark.brooklyn-br {
+  top: 68%;
+  right: 32%;
+  transform: rotate(-25deg);
+}
+
+/* SVG Operational Route Layer */
+.map-routes-svg {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 2;
+}
+
+.map-animated-route-line {
+  animation: routePulseDash 20s linear infinite;
+}
+
+@keyframes routePulseDash {
+  to {
+    stroke-dashoffset: -140;
+  }
+}
+
+/* Operational Map Markers */
+.map-op-marker {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  z-index: 3;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  pointer-events: auto;
+  cursor: pointer;
+  transition: transform 160ms ease;
+}
+
+.map-op-marker:hover {
+  transform: translate(-50%, -50%) scale(1.08);
+  z-index: 5;
+}
+
+/* Primary Location Marker (40.7128, -74.0060) */
+.marker-beacon-rings {
+  position: relative;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.beacon-center-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background-color: var(--brand-primary, #3B82F6);
+  border: 2px solid #FFFFFF;
+  box-shadow: 0 0 10px var(--brand-primary, #3B82F6), 0 2px 6px rgba(0, 0, 0, 0.5);
+  z-index: 2;
+  position: relative;
+  transition: transform 200ms ease;
+}
+
+.beacon-ring {
+  position: absolute;
+  border-radius: 50%;
+  border: 1.5px solid var(--brand-primary, #3B82F6);
+  pointer-events: none;
+}
+
+.beacon-ring.ring-1 {
+  width: 24px;
+  height: 24px;
+  animation: beaconPulse 2.2s cubic-bezier(0.2, 0, 0, 1) infinite;
+}
+
+.beacon-ring.ring-2 {
+  width: 24px;
+  height: 24px;
+  animation: beaconPulse 2.2s cubic-bezier(0.2, 0, 0, 1) infinite 0.8s;
+}
+
+@keyframes beaconPulse {
+  0% {
+    transform: scale(0.4);
+    opacity: 0.95;
+  }
+  100% {
+    transform: scale(2.5);
+    opacity: 0;
+  }
+}
+
+.map-op-marker.locating-focus .beacon-center-dot {
+  transform: scale(1.4);
+  box-shadow: 0 0 20px var(--brand-primary, #3B82F6), 0 0 30px #38BDF8;
+}
+
+/* Callout Pills for Markers */
+.marker-callout-pill {
+  margin-top: 5px;
+  padding: 3px 8px;
+  border-radius: 6px;
+  background: rgba(15, 23, 42, 0.88);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  color: #FFFFFF;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.35);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1px;
+  white-space: nowrap;
+  pointer-events: none;
+  transition: transform 160ms ease, border-color 160ms ease;
+}
+
+.marker-callout-pill.primary {
+  background: rgba(15, 23, 42, 0.92);
+  border-color: var(--brand-primary, #3B82F6);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.45), 0 0 10px rgba(59, 130, 246, 0.35);
+}
+
+.marker-callout-pill .marker-title {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  color: #F8FAFC;
+}
+
+.marker-callout-pill .marker-coord {
+  font-size: 8.5px;
+  font-family: monospace;
+  color: #94A3B8;
+}
+
+/* Secondary Marker Dot Badges */
+.marker-dot-badge {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  border: 2px solid #FFFFFF;
+  box-shadow: 0 1px 5px rgba(0, 0, 0, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.marker-dot-badge.green {
+  background-color: #10B981;
+  box-shadow: 0 0 8px rgba(16, 185, 129, 0.8);
+}
+
+.marker-dot-badge.amber {
+  background-color: #F59E0B;
+  box-shadow: 0 0 8px rgba(245, 158, 11, 0.8);
+}
+
+.marker-dot-badge.blue {
+  background-color: #38BDF8;
+  box-shadow: 0 0 8px rgba(56, 189, 248, 0.8);
 }
 
 /* Floating Location Badge (Top-Left) */
@@ -3119,14 +3440,14 @@ html, body {
   gap: 7px;
   padding: 5px 12px;
   border-radius: 9999px;
-  background: rgba(15, 23, 42, 0.78);
+  background: rgba(15, 23, 42, 0.82);
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
-  border: 1px solid rgba(255, 255, 255, 0.12);
+  border: 1px solid rgba(255, 255, 255, 0.14);
   color: #E2E8F0;
   font-size: 11.5px;
   font-weight: 500;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
   transition: all 180ms ease;
   user-select: none;
 }
@@ -3141,14 +3462,29 @@ html, body {
   color: #94A3B8;
 }
 
-/* Center Subtle Treatment / Watermark */
+/* Top-Right Context Watermark */
 .map-center-watermark {
+  position: absolute;
+  top: 14px;
+  right: 14px;
   display: inline-flex;
   align-items: center;
-  gap: 7px;
-  color: #475569;
+  gap: 6px;
+  padding: 4px 10px;
+  border-radius: 9999px;
+  background: rgba(15, 23, 42, 0.75);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: #94A3B8;
+  font-size: 9.5px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  z-index: 10;
   user-select: none;
   pointer-events: none;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
 }
 
 .map-watermark-dot {
@@ -3158,12 +3494,11 @@ html, body {
 }
 
 .map-watermark-text {
-  font-size: 11px;
+  font-size: 9.5px;
   font-weight: 600;
-  letter-spacing: 0.1em;
+  letter-spacing: 0.08em;
   text-transform: uppercase;
-  color: #64748B;
-  opacity: 0.85;
+  color: #94A3B8;
   font-family: var(--font-sans);
 }
 
@@ -3565,18 +3900,9 @@ html, body {
   position: relative;
   border-radius: 8px;
   overflow: hidden;
-  background-color: #0E1626;
-  background-image: 
-    radial-gradient(ellipse at center, rgba(30, 41, 59, 0.45) 0%, rgba(10, 16, 28, 0.95) 100%),
-    repeating-linear-gradient(
-      -45deg,
-      rgba(255, 255, 255, 0.015) 0px,
-      rgba(255, 255, 255, 0.015) 2px,
-      transparent 2px,
-      transparent 12px
-    );
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  box-shadow: inset 0 1px 6px rgba(0, 0, 0, 0.4);
+  background-color: #060A12;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -3587,43 +3913,314 @@ html, body {
 }
 
 .camera-feed-tile:hover {
-  border-color: rgba(59, 130, 246, 0.4);
-  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.25), inset 0 1px 6px rgba(0, 0, 0, 0.3);
+  border-color: rgba(59, 130, 246, 0.55);
+  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(59, 130, 246, 0.25);
   transform: translateY(-1px);
 }
 
 .camera-feed-tile.standby {
-  background-color: #0B111D;
-  opacity: 0.9;
+  border-color: rgba(148, 163, 184, 0.15);
+}
+
+/* 1. Underlying Realistic CCTV Footage Container */
+.cctv-footage-wrapper {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  overflow: hidden;
+  border-radius: 8px;
+  background: #060A12;
+  pointer-events: none;
+}
+
+.cctv-footage-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  display: block;
+  /* Realistic surveillance post-processing: dark, desaturated, high contrast */
+  filter: contrast(1.18) brightness(0.72) saturate(0.65) hue-rotate(-6deg);
+  transform: scale(1.02);
+  animation: cctvPanMotion 22s ease-in-out infinite alternate;
+}
+
+.cctv-footage-img.cam-02 {
+  animation-delay: -4s;
+}
+
+.cctv-footage-img.cam-03 {
+  animation-delay: -9s;
+}
+
+.cctv-footage-img.cam-04 {
+  animation-delay: -14s;
+}
+
+.cctv-footage-img.cam-05 {
+  animation: none;
+  filter: contrast(1.08) brightness(0.55) saturate(0.45) grayscale(0.3);
+}
+
+.cctv-footage-img.cam-06 {
+  animation-delay: -18s;
+}
+
+@keyframes cctvPanMotion {
+  0% {
+    transform: scale(1.02) translate(0, 0);
+  }
+  50% {
+    transform: scale(1.05) translate(-1.2%, -0.8%);
+  }
+  100% {
+    transform: scale(1.03) translate(0.8%, 0.6%);
+  }
+}
+
+/* 2. Surveillance Dark Vignette & Shadow Overlay */
+.cctv-vignette-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  pointer-events: none;
+  background: radial-gradient(
+    circle at center,
+    rgba(8, 14, 26, 0.1) 35%,
+    rgba(4, 8, 16, 0.58) 82%,
+    rgba(2, 4, 8, 0.88) 100%
+  );
+  z-index: 1;
+}
+
+/* 3. Subtle CRT Scanlines */
+.cctv-scanlines {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  pointer-events: none;
+  background: repeating-linear-gradient(
+    to bottom,
+    rgba(255, 255, 255, 0.025) 0px,
+    rgba(255, 255, 255, 0.025) 1px,
+    transparent 1px,
+    transparent 3px
+  );
+  opacity: 0.85;
+  z-index: 1;
+}
+
+/* 4. Moving Scan Beam */
+.cctv-scan-beam {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 28px;
+  background: linear-gradient(
+    to bottom,
+    transparent 0%,
+    rgba(255, 255, 255, 0.045) 50%,
+    transparent 100%
+  );
+  pointer-events: none;
+  animation: cctvScanBeam 7s linear infinite;
+  z-index: 1;
+}
+
+@keyframes cctvScanBeam {
+  0% {
+    top: -28px;
+  }
+  100% {
+    top: 100%;
+  }
+}
+
+/* 5. Subtle CCTV HUD Tracking Boxes */
+.cctv-hud-tracking {
+  position: absolute;
+  pointer-events: none;
+  z-index: 2;
+}
+
+.cctv-hud-tracking.person {
+  left: 48%;
+  top: 50%;
+  width: 42px;
+  height: 64px;
+  animation: personTrack 14s ease-in-out infinite alternate;
+}
+
+@keyframes personTrack {
+  0% { transform: translate(0, 0); }
+  50% { transform: translate(-8px, 4px); }
+  100% { transform: translate(6px, -3px); }
+}
+
+.cctv-hud-tracking.vehicle {
+  left: 35%;
+  top: 48%;
+  width: 68px;
+  height: 48px;
+  animation: vehicleTrack 12s ease-in-out infinite alternate;
+}
+
+@keyframes vehicleTrack {
+  0% { transform: translate(0, 0); }
+  50% { transform: translate(4px, 2px); }
+  100% { transform: translate(-3px, -2px); }
+}
+
+.cctv-hud-tracking.forklift {
+  left: 30%;
+  top: 52%;
+  width: 62px;
+  height: 52px;
+}
+
+.cctv-hud-tracking.zone {
+  right: 24%;
+  top: 40%;
+  width: 72px;
+  height: 44px;
+}
+
+.cctv-hud-tracking.rack {
+  left: 16%;
+  top: 36%;
+  width: 64px;
+  height: 72px;
+}
+
+.cctv-track-box {
+  width: 100%;
+  height: 100%;
+  position: relative;
+  border: 1px dashed rgba(59, 130, 246, 0.45);
+  box-shadow: inset 0 0 6px rgba(59, 130, 246, 0.12);
+}
+
+.cctv-track-label {
+  position: absolute;
+  top: -15px;
+  left: 0;
+  font-size: 8px;
+  font-family: monospace;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  background: rgba(15, 23, 42, 0.88);
+  color: #60A5FA;
+  padding: 1px 4px;
+  border-radius: 2px;
+  border: 1px solid rgba(59, 130, 246, 0.35);
+  white-space: nowrap;
+}
+
+/* 6. Server Room Blinking LEDs */
+.cctv-server-leds {
+  position: absolute;
+  left: 20%;
+  top: 46%;
+  display: flex;
+  gap: 4px;
+  z-index: 2;
+  pointer-events: none;
+}
+
+.server-led {
+  width: 3.5px;
+  height: 3.5px;
+  border-radius: 50%;
+}
+
+.server-led.green {
+  background: #10B981;
+  box-shadow: 0 0 6px #10B981;
+  animation: ledPulse 1.2s ease-in-out infinite;
+}
+
+.server-led.cyan {
+  background: #06B6D4;
+  box-shadow: 0 0 6px #06B6D4;
+  animation: ledPulse 1.9s ease-in-out infinite 0.4s;
+}
+
+.server-led.blue {
+  background: #3B82F6;
+  box-shadow: 0 0 6px #3B82F6;
+  animation: ledPulse 1.6s ease-in-out infinite 0.8s;
+}
+
+@keyframes ledPulse {
+  0%, 100% { opacity: 0.4; transform: scale(0.9); }
+  50% { opacity: 1; transform: scale(1.15); }
+}
+
+/* 7. Standby Status Banner for CAM 05 */
+.cctv-standby-banner {
+  position: absolute;
+  bottom: 28px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 9px;
+  background: rgba(15, 23, 42, 0.88);
+  border: 1px solid rgba(148, 163, 184, 0.25);
+  border-radius: 4px;
+  font-size: 9px;
+  font-family: monospace;
+  font-weight: 600;
+  color: #94A3B8;
+  letter-spacing: 0.05em;
+  z-index: 2;
+  pointer-events: none;
+  white-space: nowrap;
+}
+
+.standby-pulse-dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background-color: #94A3B8;
+  animation: liveDotPulse 2s infinite;
 }
 
 /* Top-Left Camera ID & Status Dot */
 .cam-tile-top-left {
   position: absolute;
-  top: 10px;
-  left: 10px;
+  top: 9px;
+  left: 9px;
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  padding: 3px 8px;
+  gap: 5px;
+  padding: 2.5px 7px;
   border-radius: 9999px;
-  background: rgba(15, 23, 42, 0.78);
+  background: rgba(15, 23, 42, 0.85);
   backdrop-filter: blur(6px);
   -webkit-backdrop-filter: blur(6px);
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  z-index: 2;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.5);
+  z-index: 3;
 }
 
 .cam-status-dot {
-  width: 6px;
-  height: 6px;
+  width: 5.5px;
+  height: 5.5px;
   border-radius: 50%;
   flex-shrink: 0;
 }
 
 .cam-status-dot.online {
   background-color: #10B981;
-  box-shadow: 0 0 5px rgba(16, 185, 129, 0.7);
+  box-shadow: 0 0 5px rgba(16, 185, 129, 0.8);
 }
 
 .cam-status-dot.standby {
@@ -3631,37 +4228,38 @@ html, body {
 }
 
 .cam-id-label {
-  font-size: 11px;
-  font-weight: 600;
-  color: #E2E8F0;
-  letter-spacing: 0.03em;
+  font-size: 10.5px;
+  font-weight: 700;
+  color: #F1F5F9;
+  letter-spacing: 0.04em;
   line-height: 1;
 }
 
 /* Top-Right REC Badge */
 .cam-rec-badge {
   position: absolute;
-  top: 10px;
-  right: 10px;
+  top: 9px;
+  right: 9px;
   display: inline-flex;
   align-items: center;
   gap: 5px;
   padding: 2.5px 7px;
   border-radius: 9999px;
-  background: rgba(220, 38, 38, 0.18);
-  border: 1px solid rgba(239, 68, 68, 0.35);
+  background: rgba(220, 38, 38, 0.22);
+  border: 1px solid rgba(239, 68, 68, 0.45);
   backdrop-filter: blur(6px);
   -webkit-backdrop-filter: blur(6px);
-  z-index: 2;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.5);
+  z-index: 3;
 }
 
 .cam-rec-dot {
-  width: 5.5px;
-  height: 5.5px;
+  width: 5px;
+  height: 5px;
   border-radius: 50%;
   background-color: #EF4444;
-  box-shadow: 0 0 4px rgba(239, 68, 68, 0.8);
-  animation: liveDotPulse 1.8s infinite;
+  box-shadow: 0 0 5px rgba(239, 68, 68, 0.9);
+  animation: liveDotPulse 1.6s infinite;
 }
 
 .cam-rec-text {
@@ -3674,28 +4272,62 @@ html, body {
 
 /* Center Location Watermark */
 .cam-center-watermark {
-  color: #475569;
-  font-size: 12px;
-  font-weight: 600;
-  letter-spacing: 0.08em;
+  color: rgba(241, 245, 249, 0.88);
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
   text-transform: uppercase;
   font-family: var(--font-sans);
   pointer-events: none;
-  opacity: 0.85;
+  background: rgba(10, 15, 26, 0.48);
+  padding: 3px 9px;
+  border-radius: 4px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(3px);
+  -webkit-backdrop-filter: blur(3px);
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.8);
+  z-index: 2;
+  transition: opacity 160ms ease;
 }
 
-/* Bottom-Left Timestamp */
+.camera-feed-tile:hover .cam-center-watermark {
+  opacity: 0.4;
+}
+
+/* Bottom-Left Real-time Live Timestamp */
 .cam-timestamp {
   position: absolute;
-  bottom: 9px;
-  left: 10px;
-  font-size: 10.5px;
+  bottom: 8px;
+  left: 9px;
+  font-size: 10px;
   font-family: monospace;
-  font-weight: 500;
-  color: #94A3B8;
+  font-weight: 600;
+  color: #E2E8F0;
   letter-spacing: 0.04em;
+  background: rgba(10, 15, 26, 0.65);
+  padding: 2px 5px;
+  border-radius: 3px;
+  border: 1px solid rgba(255, 255, 255, 0.06);
   pointer-events: none;
-  z-index: 2;
+  z-index: 3;
+}
+
+/* Bottom-Right Stream Telemetry */
+.cam-telemetry {
+  position: absolute;
+  bottom: 8px;
+  right: 9px;
+  font-size: 9px;
+  font-family: monospace;
+  font-weight: 600;
+  color: rgba(226, 232, 240, 0.7);
+  letter-spacing: 0.04em;
+  background: rgba(10, 15, 26, 0.65);
+  padding: 2px 5px;
+  border-radius: 3px;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  pointer-events: none;
+  z-index: 3;
 }
 
 /* Recent Detections Card Body */
