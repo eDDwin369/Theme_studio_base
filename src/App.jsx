@@ -37,7 +37,21 @@ import {
   FileText,
   Search,
   ChevronLeft,
-  ChevronRight
+  ChevronRight,
+  ClipboardCheck,
+  Clock,
+  Activity,
+  Camera,
+  Video,
+  Disc,
+  HardDrive,
+  Users,
+  BarChart2,
+  Calendar,
+  CalendarCheck,
+  Package,
+  Shield,
+  ArrowRight
 } from 'lucide-react';
 import oomnieyeLogo from './assets/oomnieye-logo.png';
 import allcadLogo from './assets/allcad-logo.png';
@@ -77,6 +91,67 @@ const GRADIENT_DIRECTIONS = [
   { label: '↗', value: 'to top right', title: 'To Top Right' },
   { label: '↖', value: 'to top left', title: 'To Top Left' },
 ];
+
+/**
+ * Approved KPI Summary Card Component
+ * Follows Reference Image 2 pixel-for-pixel:
+ * - Centered layout
+ * - Lightly colored squircle icon container
+ * - Large prominent metric value
+ * - Small readable label positioned consistently below the value
+ * - Action link / trend indicator below label
+ * - Active state with brand accent border
+ */
+function KpiSummaryCard({
+  icon: Icon,
+  accent = 'blue',
+  value,
+  label,
+  actionText,
+  onActionClick,
+  trend,
+  trendPositive,
+  isActive = false,
+  onClick,
+  style = {},
+}) {
+  return (
+    <div
+      className={`app-kpi-summary-card accent-${accent} ${isActive ? 'is-active' : ''}`}
+      style={style}
+      onClick={onClick}
+      role={onClick ? 'button' : undefined}
+      tabIndex={onClick ? 0 : undefined}
+    >
+      <div className={`kpi-icon-container accent-${accent}`}>
+        {Icon && <Icon size={18} strokeWidth={2.4} />}
+      </div>
+      <span className={`kpi-metric-val ${isActive ? 'active-metric' : ''}`}>
+        {value}
+      </span>
+      <span className="kpi-metric-label">{label}</span>
+      {actionText && (
+        <span
+          className="kpi-action-link"
+          onClick={(e) => {
+            if (onActionClick) {
+              e.stopPropagation();
+              onActionClick();
+            }
+          }}
+        >
+          {actionText} <ArrowRight size={12} strokeWidth={2.5} />
+        </span>
+      )}
+      {trend && (
+        <div className={`kpi-trend-pill ${trendPositive ? 'positive' : 'negative'}`}>
+          <span className="trend-arrow">{trendPositive ? '▲' : '▼'}</span>
+          <span>{trend}</span>
+        </div>
+      )}
+    </div>
+  );
+}
 
 export default function App() {
   // Color Scheme Preset (Corporate Blue vs Corporate Green)
@@ -196,20 +271,157 @@ export default function App() {
     return () => clearInterval(timer);
   }, []);
 
+  // CCTV Surveillance Active Selected Camera State
+  const [selectedCamId, setSelectedCamId] = useState('CAM 02');
+
   // Operations Center Preview States
   const [mapZoom, setMapZoom] = useState(100);
   const [activeMapLayer, setActiveMapLayer] = useState('Default');
   const [isLocating, setIsLocating] = useState(false);
   const [operationsNotifs, setOperationsNotifs] = useState([
-    { id: 1, title: 'Camera 04 motion detected — Loading Bay', time: 'just now', type: 'alert', unread: true },
-    { id: 2, title: 'Stream reconnected — North Gate feed', time: '4m ago', type: 'success', unread: true },
-    { id: 3, title: 'Access request — J. Okoro (Operator)', time: '22m ago', type: 'info', unread: false },
-    { id: 4, title: 'Report archive storage 82% full', time: '1h ago', type: 'alert', unread: false },
-    { id: 5, title: 'Backup completed — 12,480 clips archived', time: '2h ago', type: 'success', unread: false },
-    { id: 6, title: 'Firmware update available — 3 devices', time: '3h ago', type: 'info', unread: false },
-    { id: 7, title: 'Camera 02 lens obstruction detected', time: '5h ago', type: 'error', unread: false },
-    { id: 8, title: 'Nightly health check passed — all nodes', time: '6h ago', type: 'success', unread: false },
-    { id: 9, title: 'New operator invited — M. Fernandez', time: '7h ago', type: 'info', unread: false },
+    {
+      id: 1,
+      actor: 'Alena King and Thomas Partey',
+      action: 'commented in',
+      target: '',
+      time: 'Just now',
+      type: 'comment',
+      unread: true,
+      avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=120&auto=format&fit=crop&q=80',
+    },
+    {
+      id: 2,
+      actor: 'Maria Joyce',
+      action: 'mentioned you in',
+      target: 'Pixel Pulse · Team Acti...',
+      time: 'Apr 02',
+      type: 'mention',
+      unread: false,
+      avatar: 'https://images.unsplash.com/photo-1580489944761-15a19d654956?w=120&auto=format&fit=crop&q=80',
+    },
+    {
+      id: 3,
+      actor: 'Priya Nair',
+      action: 'mentioned you in',
+      target: 'Q3 Roadmap · Team A...',
+      time: 'Mar 28',
+      type: 'mention',
+      unread: true,
+      avatar: 'https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?w=120&auto=format&fit=crop&q=80',
+    },
+    {
+      id: 4,
+      actor: 'Daniel Ruiz',
+      action: 'commented in',
+      target: 'Release Notes v2.4 · Team...',
+      time: 'Mar 23',
+      type: 'comment',
+      unread: false,
+      avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=120&auto=format&fit=crop&q=80',
+    },
+    {
+      id: 5,
+      actor: 'Sarah Chen',
+      action: 'mentioned you in',
+      target: 'Incident Log #402 · Ops...',
+      time: 'Mar 19',
+      type: 'mention',
+      unread: false,
+      avatar: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=120&auto=format&fit=crop&q=80',
+    },
+    {
+      id: 6,
+      actor: 'Marcus Vance',
+      action: 'commented in',
+      target: 'Perimeter Patrol Logs · Sec...',
+      time: 'Mar 14',
+      type: 'comment',
+      unread: false,
+      avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=120&auto=format&fit=crop&q=80',
+    },
+  ]);
+
+  const [cameraDetections, setCameraDetections] = useState([
+    {
+      id: 1,
+      actor: 'Alena King & Sensor AI',
+      action: 'flagged motion in',
+      target: 'CAM 04 Rooftop · Perimeter',
+      time: 'Just now',
+      type: 'alert',
+      unread: true,
+      avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=120&auto=format&fit=crop&q=80',
+    },
+    {
+      id: 2,
+      actor: 'Maria Joyce',
+      action: 'verified vehicle in',
+      target: 'CAM 02 North Gate · Entry Gate',
+      time: '6m ago',
+      type: 'info',
+      unread: false,
+      avatar: 'https://images.unsplash.com/photo-1580489944761-15a19d654956?w=120&auto=format&fit=crop&q=80',
+    },
+    {
+      id: 3,
+      actor: 'Priya Nair',
+      action: 'cleared loitering in',
+      target: 'CAM 01 Main Lobby · Reception',
+      time: '22m ago',
+      type: 'success',
+      unread: true,
+      avatar: 'https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?w=120&auto=format&fit=crop&q=80',
+    },
+    {
+      id: 4,
+      actor: 'Daniel Ruiz',
+      action: 'reported door forced in',
+      target: 'CAM 06 Server Room · Rack 12',
+      time: '34m ago',
+      type: 'alert',
+      unread: false,
+      avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=120&auto=format&fit=crop&q=80',
+    },
+    {
+      id: 5,
+      actor: 'Sarah Chen',
+      action: 'logged forklift in',
+      target: 'CAM 03 Loading Bay · Dock 4',
+      time: '48m ago',
+      type: 'info',
+      unread: false,
+      avatar: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=120&auto=format&fit=crop&q=80',
+    },
+    {
+      id: 6,
+      actor: 'Marcus Vance',
+      action: 'restored signal in',
+      target: 'CAM 05 Parking Deck · Deck 2',
+      time: '1h ago',
+      type: 'success',
+      unread: false,
+      avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=120&auto=format&fit=crop&q=80',
+    },
+    {
+      id: 7,
+      actor: 'Alex Mercer',
+      action: 'flagged tailgating in',
+      target: 'CAM 02 North Gate · Turnstile',
+      time: '1h ago',
+      type: 'alert',
+      unread: false,
+      avatar: 'https://images.unsplash.com/photo-1522075469751-3a6694fb2f61?w=120&auto=format&fit=crop&q=80',
+    },
+    {
+      id: 8,
+      actor: 'Elena Rostova',
+      action: 'confirmed crowd clear in',
+      target: 'CAM 04 Rooftop · Heli-pad',
+      time: '2h ago',
+      type: 'success',
+      unread: false,
+      avatar: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=120&auto=format&fit=crop&q=80',
+    },
   ]);
 
   // Orders Preview States
@@ -1656,6 +1868,38 @@ export default function App() {
                     </div>
                   </div>
 
+                  {/* Operations Telemetry KPI Summary Cards Row (Approved Card UI) */}
+                  <div className="operations-kpi-grid">
+                    <KpiSummaryCard
+                      icon={Shield}
+                      accent="blue"
+                      value="18"
+                      label="Active Dispatches"
+                      style={cardSurfaceStyle}
+                    />
+                    <KpiSummaryCard
+                      icon={Clock}
+                      accent="yellow"
+                      value="3.4m"
+                      label="Avg Response Time"
+                      style={cardSurfaceStyle}
+                    />
+                    <KpiSummaryCard
+                      icon={AlertTriangle}
+                      accent="cyan"
+                      value={unreadNotifsCount.toString()}
+                      label="Pending Alerts"
+                      style={cardSurfaceStyle}
+                    />
+                    <KpiSummaryCard
+                      icon={Activity}
+                      accent="green"
+                      value="99.8%"
+                      label="Network Uptime"
+                      style={cardSurfaceStyle}
+                    />
+                  </div>
+
                   {/* Main Two-Column Layout */}
                   <div className="operations-main-grid">
                     {/* Live Map · Street View Card */}
@@ -1922,27 +2166,63 @@ export default function App() {
                               tabIndex={0}
                               title="Click to toggle read status"
                             >
-                              <div className={`notif-icon-badge ${item.type}`}>
-                                {item.type === 'alert' && <AlertTriangle size={13} strokeWidth={2.4} />}
-                                {item.type === 'success' && <Check size={13} strokeWidth={2.6} />}
-                                {item.type === 'info' && (
-                                  <span className="app-tooltip-wrap" data-tooltip="Informational system notice" data-tooltip-pos="top">
-                                    <Info size={13} strokeWidth={2.4} />
-                                  </span>
-                                )}
-                                {item.type === 'error' && <AlertCircle size={13} strokeWidth={2.4} />}
+                              {/* Avatar with overlapping sub-badge */}
+                              <div className="notif-avatar-wrapper">
+                                <div className="notif-avatar-img-wrap">
+                                  <img
+                                    src={item.avatar}
+                                    alt={item.actor}
+                                    className="notif-avatar-img"
+                                    onError={(e) => {
+                                      e.currentTarget.style.display = 'none';
+                                    }}
+                                  />
+                                </div>
+                                <div className={`notif-avatar-subbadge ${item.type}`}>
+                                  {item.type === 'comment' ? (
+                                    <MessageSquare size={9.5} strokeWidth={2.4} />
+                                  ) : (
+                                    <Info size={9.5} strokeWidth={2.4} />
+                                  )}
+                                </div>
                               </div>
 
-                              <div className="notif-text-col">
-                                <span className="notif-title-line">{item.title}</span>
-                                <span className="notif-time-line">{item.time}</span>
+                              {/* Single-line notification text */}
+                              <div className="notif-row-text">
+                                <span className="notif-actor-name">{item.actor}</span>
+                                <span className="notif-action-text"> {item.action} in · </span>
+                                <span className="notif-folder-icon" aria-hidden="true">📁</span>
+                                {item.target && <span className="notif-target-text"> {item.target} · </span>}
+                                <span className="notif-time-text">{item.time}</span>
                               </div>
 
+                              {/* Red unread indicator dot on right */}
                               {item.unread && (
-                                <span className="notif-unread-dot" title="Unread notification" />
+                                <span className="notif-unread-red-dot" title="Unread notification" />
                               )}
                             </div>
                           ))}
+                        </div>
+
+                        {/* Card Footer matching Reference Image */}
+                        <div className="notif-card-footer">
+                          <span className="notif-page-info">Page 1 of 1</span>
+                          <div className="notif-footer-btns">
+                            <button
+                              type="button"
+                              className="notif-pill-btn"
+                              aria-label="Previous notifications page"
+                            >
+                              PREV
+                            </button>
+                            <button
+                              type="button"
+                              className="notif-pill-btn"
+                              aria-label="Next notifications page"
+                            >
+                              NEXT
+                            </button>
+                          </div>
                         </div>
                       </div>
                     </section>
@@ -1961,17 +2241,13 @@ export default function App() {
                 { id: 'CAM 06', name: 'Server Room', status: 'online', recording: true, time: '14:32:08', image: camServerRoomImg, tag: 'RACK 10-18 · NORMAL', tagType: 'rack' },
               ];
 
-              const recentDetections = [
-                { id: 1, title: 'Motion detected — Rooftop', meta: 'CAM 04 · just now', type: 'alert' },
-                { id: 2, title: 'Person identified — North Gate', meta: 'CAM 02 · 6m ago', type: 'info' },
-                { id: 3, title: 'Loitering cleared — Main Lobby', meta: 'CAM 01 · 22m ago', type: 'success' },
-                { id: 4, title: 'Door forced — Server Room', meta: 'CAM 06 · 34m ago', type: 'alert' },
-                { id: 5, title: 'Vehicle detected — Loading Bay', meta: 'CAM 03 · 48m ago', type: 'info' },
-                { id: 6, title: 'Signal restored — Parking Deck', meta: 'CAM 05 · 1h ago', type: 'success' },
-                { id: 7, title: 'Tailgating flagged — North Gate', meta: 'CAM 02 · 1h ago', type: 'alert' },
-                { id: 8, title: 'Crowd density normal — Rooftop', meta: 'CAM 04 · 2h ago', type: 'success' },
-                { id: 9, title: 'Object left behind — Main Lobby', meta: 'CAM 01 · 2h ago', type: 'info' },
-              ];
+              const activeCam = cameraFeeds.find((c) => c.id === selectedCamId) || cameraFeeds[1];
+              const leftSideCams = [cameraFeeds[0], cameraFeeds[1], cameraFeeds[2]];
+              const topRowCams = [cameraFeeds[3], cameraFeeds[4], cameraFeeds[5]];
+              const bottomRowCams = [cameraFeeds[0], cameraFeeds[2], cameraFeeds[3]];
+              const rightSideCams = [cameraFeeds[3], cameraFeeds[4], cameraFeeds[5]];
+
+              const unreadDetectionsCount = cameraDetections.filter((d) => d.unread).length;
 
               return (
                 <div className="cameras-preview-canvas">
@@ -2008,29 +2284,41 @@ export default function App() {
                     </div>
                   </div>
 
-                  {/* 2. Top Row: 4 KPI Cards */}
+                  {/* 2. Top Row: 4 KPI Cards (Approved Reference Image 2 Design) */}
                   <div className="cameras-kpi-grid">
-                    <div className="camera-kpi-card" style={cardSurfaceStyle}>
-                      <span className="camera-kpi-label">CAMERAS ONLINE</span>
-                      <span className="camera-kpi-val">5/6</span>
-                    </div>
-                    <div className="camera-kpi-card" style={cardSurfaceStyle}>
-                      <span className="camera-kpi-label">RECORDING</span>
-                      <span className="camera-kpi-val">4</span>
-                    </div>
-                    <div className="camera-kpi-card" style={cardSurfaceStyle}>
-                      <span className="camera-kpi-label">MOTION ALERTS</span>
-                      <span className="camera-kpi-val">2</span>
-                    </div>
-                    <div className="camera-kpi-card" style={cardSurfaceStyle}>
-                      <span className="camera-kpi-label">STORAGE USED</span>
-                      <span className="camera-kpi-val">82%</span>
-                    </div>
+                    <KpiSummaryCard
+                      icon={Camera}
+                      accent="blue"
+                      value="5/6"
+                      label="Cameras Online"
+                      style={cardSurfaceStyle}
+                    />
+                    <KpiSummaryCard
+                      icon={Disc}
+                      accent="yellow"
+                      value="4"
+                      label="Active Recording"
+                      style={cardSurfaceStyle}
+                    />
+                    <KpiSummaryCard
+                      icon={AlertCircle}
+                      accent="cyan"
+                      value={unreadDetectionsCount.toString()}
+                      label="Motion Alerts"
+                      style={cardSurfaceStyle}
+                    />
+                    <KpiSummaryCard
+                      icon={HardDrive}
+                      accent="green"
+                      value="82%"
+                      label="Storage Used"
+                      style={cardSurfaceStyle}
+                    />
                   </div>
 
                   {/* 3. Main Split Grid: Camera Wall (left) + Recent Detections (right) */}
                   <div className="cameras-main-grid">
-                    {/* Left: Camera Wall */}
+                    {/* Left: Camera Wall - Asymmetric Surveillance Center */}
                     <section
                       className="camera-card camera-wall-card"
                       style={cardSurfaceStyle}
@@ -2047,38 +2335,149 @@ export default function App() {
                           Camera Wall
                         </h2>
                         <span className="camera-grid-meta" style={{ color: previewHeaderStyles.subtitleColor }}>
-                          2 × 3 grid
+                          Surveillance Dashboard · Live Grid
                         </span>
                       </div>
 
                       <div className="camera-wall-body">
-                        <div className="camera-feeds-grid">
-                          {cameraFeeds.map((cam) => (
-                            <div key={cam.id} className={`camera-feed-tile ${cam.status}`}>
-                              {/* Background Realistic Surveillance Video Footage */}
-                              <div className="cctv-footage-wrapper">
+                        <div className="cctv-asymmetric-layout">
+                          {/* Left Sidebar: 3 Narrow Vertically Stacked Cards */}
+                          <div className="cctv-side-col left-side" role="region" aria-label="West Sector Feeds">
+                            {leftSideCams.map((cam, idx) => (
+                              <div
+                                key={`left-${cam.id}-${idx}`}
+                                className={`cctv-side-tile ${cam.id === selectedCamId ? 'is-selected' : ''}`}
+                                onClick={() => setSelectedCamId(cam.id)}
+                                title={`Focus ${cam.id} (${cam.name}) on main monitor`}
+                              >
+                                <div className="cctv-footage-wrapper">
+                                  <img
+                                    src={cam.image}
+                                    alt={`${cam.id} — ${cam.name}`}
+                                    className={`cctv-footage-img ${cam.id.toLowerCase().replace(' ', '-')}`}
+                                  />
+                                  <div className="cctv-vignette-overlay" />
+                                  <div className="cctv-scanlines" />
+                                </div>
+                                <div className="cctv-side-meta-top">
+                                  <span className={`cam-status-dot ${cam.status}`} />
+                                  <span className="cctv-side-cam-id">{cam.id}</span>
+                                  {cam.recording && <span className="cam-rec-dot pulse" title="Recording active" />}
+                                </div>
+                                <div className="cctv-side-name-vertical">
+                                  <span>{cam.name}</span>
+                                </div>
+                                <div className="cctv-side-meta-bottom">
+                                  <span className="cctv-side-status-text">{cam.status === 'online' ? 'LIVE' : 'IDLE'}</span>
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+
+                          {/* Center Column: Top Row (3) + Large Main Preview (1) + Bottom Row (3) */}
+                          <div className="cctv-center-col">
+                            {/* Top Row: 3 Smaller Camera Preview Cards Horizontally */}
+                            <div className="cctv-h-row top-row" role="region" aria-label="North Sector Feeds">
+                              {topRowCams.map((cam, idx) => (
+                                <div
+                                  key={`top-${cam.id}-${idx}`}
+                                  className={`cctv-h-tile ${cam.id === selectedCamId ? 'is-selected' : ''}`}
+                                  onClick={() => setSelectedCamId(cam.id)}
+                                  title={`Focus ${cam.id} (${cam.name}) on main monitor`}
+                                >
+                                  <div className="cctv-footage-wrapper">
+                                    <img
+                                      src={cam.image}
+                                      alt={`${cam.id} — ${cam.name}`}
+                                      className={`cctv-footage-img ${cam.id.toLowerCase().replace(' ', '-')}`}
+                                    />
+                                    <div className="cctv-vignette-overlay" />
+                                    <div className="cctv-scanlines" />
+                                  </div>
+                                  <div className="cctv-h-meta-top">
+                                    <div className="cctv-h-id-wrap">
+                                      <span className={`cam-status-dot ${cam.status}`} />
+                                      <span className="cctv-h-cam-id">{cam.id}</span>
+                                    </div>
+                                    {cam.recording && (
+                                      <div className="cam-rec-badge compact">
+                                        <span className="cam-rec-dot" />
+                                        <span className="cam-rec-text">REC</span>
+                                      </div>
+                                    )}
+                                  </div>
+                                  <div className="cctv-h-name-watermark">
+                                    <span>{cam.name}</span>
+                                  </div>
+                                  <div className="cctv-h-meta-bottom">
+                                    <span className="cctv-h-time">{liveCctvTime || cam.time}</span>
+                                    <span className="cctv-h-res">1080P</span>
+                                  </div>
+                                </div>
+                              ))}
+                            </div>
+
+                            {/* Center: Large Main Camera Preview (Focus Panel) */}
+                            <div
+                              className="cctv-main-preview-panel"
+                              role="region"
+                              aria-label={`Main Camera Feed: ${activeCam.id} ${activeCam.name}`}
+                            >
+                              <div className="cctv-footage-wrapper is-main-feed">
                                 <img
-                                  src={cam.image}
-                                  alt={`${cam.id} — ${cam.name} live surveillance feed`}
-                                  className={`cctv-footage-img ${cam.id.toLowerCase().replace(' ', '-')}`}
+                                  src={activeCam.image}
+                                  alt={`${activeCam.id} — ${activeCam.name} main surveillance view`}
+                                  className={`cctv-footage-img is-main-img ${activeCam.id.toLowerCase().replace(' ', '-')}`}
                                 />
-                                <div className="cctv-vignette-overlay" />
-                                <div className="cctv-scanlines" />
+                                <div className="cctv-vignette-overlay is-main-vignette" />
+                                <div className="cctv-scanlines is-main-scanlines" />
                                 <div className="cctv-scan-beam" />
                               </div>
 
-                              {/* Subtle CCTV Scene Tracking Box */}
-                              {cam.status === 'online' && (
-                                <div className={`cctv-hud-tracking ${cam.tagType}`}>
+                              {/* Target HUD Reticle Brackets */}
+                              <div className="cctv-hud-reticle tl" />
+                              <div className="cctv-hud-reticle tr" />
+                              <div className="cctv-hud-reticle bl" />
+                              <div className="cctv-hud-reticle br" />
+
+                              {/* Main Top Header Overlay */}
+                              <div className="cctv-main-overlay-top">
+                                <div className="cctv-main-tag-box">
+                                  <span className={`cam-status-dot ${activeCam.status}`} />
+                                  <span className="cctv-main-cam-id">{activeCam.id}</span>
+                                  <span className="cctv-main-badge">PRIMARY TARGET FEED</span>
+                                </div>
+                                <div className="cctv-main-rec-wrap">
+                                  {activeCam.recording && (
+                                    <div className="cam-rec-badge is-main">
+                                      <span className="cam-rec-dot pulse" />
+                                      <span className="cam-rec-text">REC · HIGH-RES</span>
+                                    </div>
+                                  )}
+                                  <span className="cctv-main-bitrate">4.8 Mbps</span>
+                                </div>
+                              </div>
+
+                              {/* Center Location Watermark (Prominently Overlaid) */}
+                              <div className="cctv-main-location-pill">
+                                <span className="cctv-loc-dot">◉</span>
+                                <span className="cctv-loc-title">{activeCam.name.toUpperCase()}</span>
+                                <span className="cctv-loc-ch">CH-0{activeCam.id.replace('CAM 0', '')}</span>
+                              </div>
+
+                              {/* Object Tracking Overlays (Preserved & Enhanced) */}
+                              {activeCam.status === 'online' && activeCam.tag && (
+                                <div className={`cctv-hud-tracking is-main-tracking ${activeCam.tagType}`}>
                                   <div className="cctv-track-box">
-                                    <span className="cctv-track-label">{cam.tag}</span>
+                                    <span className="cctv-track-label">{activeCam.tag}</span>
+                                    <div className="cctv-crosshair-center" />
                                   </div>
                                 </div>
                               )}
 
                               {/* Server Room Rack Blinkers */}
-                              {cam.id === 'CAM 06' && (
-                                <div className="cctv-server-leds" aria-hidden="true">
+                              {activeCam.id === 'CAM 06' && (
+                                <div className="cctv-server-leds is-main-leds" aria-hidden="true">
                                   <span className="server-led green" />
                                   <span className="server-led cyan" />
                                   <span className="server-led green" />
@@ -2086,51 +2485,106 @@ export default function App() {
                                 </div>
                               )}
 
-                              {/* Standby Status Banner for CAM 05 */}
-                              {cam.status === 'standby' && (
-                                <div className="cctv-standby-banner">
+                              {/* Standby Banner for CAM 05 */}
+                              {activeCam.status === 'standby' && (
+                                <div className="cctv-standby-banner is-main-standby">
                                   <span className="standby-pulse-dot" />
-                                  <span>MOTION DETECTION STANDBY</span>
+                                  <span>MOTION DETECTION STANDBY · RADAR ONLINE</span>
                                 </div>
                               )}
 
-                              {/* Top-left: Camera Name & Status pill */}
-                              <div className="cam-tile-top-left">
-                                <span className={`cam-status-dot ${cam.status}`} />
-                                <span className="cam-id-label">{cam.id}</span>
-                              </div>
-
-                              {/* Top-right: REC badge if recording */}
-                              {cam.recording && (
-                                <div className="cam-rec-badge" title="Recording active">
-                                  <span className="cam-rec-dot" />
-                                  <span className="cam-rec-text">REC</span>
+                              {/* Main Bottom Footer Overlay */}
+                              <div className="cctv-main-overlay-bottom">
+                                <div className="cctv-main-timestamp-box">
+                                  <span className="cctv-timestamp-clock">{liveCctvTime || activeCam.time}</span>
+                                  <span className="cctv-timestamp-tz">UTC-04:00 (EST)</span>
                                 </div>
-                              )}
-
-                              {/* Center: Camera Location Watermark */}
-                              <div className="cam-center-watermark">
-                                <span>{cam.name}</span>
-                              </div>
-
-                              {/* Bottom-left: Real-time Live Timestamp */}
-                              {cam.status === 'online' ? (
-                                <div className="cam-timestamp">
-                                  <span>{liveCctvTime || cam.time}</span>
+                                <div className="cctv-main-telemetry-box">
+                                  <span className="cctv-main-res">{activeCam.status === 'online' ? '1080P · 24FPS' : 'SIGNAL IDLE'}</span>
+                                  <span className="cctv-main-codec">H.265 / 60Hz</span>
                                 </div>
-                              ) : null}
-
-                              {/* Bottom-right: Stream Quality Telemetry */}
-                              <div className="cam-telemetry">
-                                <span>{cam.status === 'online' ? '1080P · 24FPS' : 'SIGNAL IDLE'}</span>
                               </div>
                             </div>
-                          ))}
+
+                            {/* Bottom Row: 3 Smaller Camera Preview Cards Horizontally */}
+                            <div className="cctv-h-row bottom-row" role="region" aria-label="South Sector Feeds">
+                              {bottomRowCams.map((cam, idx) => (
+                                <div
+                                  key={`bottom-${cam.id}-${idx}`}
+                                  className={`cctv-h-tile ${cam.id === selectedCamId ? 'is-selected' : ''}`}
+                                  onClick={() => setSelectedCamId(cam.id)}
+                                  title={`Focus ${cam.id} (${cam.name}) on main monitor`}
+                                >
+                                  <div className="cctv-footage-wrapper">
+                                    <img
+                                      src={cam.image}
+                                      alt={`${cam.id} — ${cam.name}`}
+                                      className={`cctv-footage-img ${cam.id.toLowerCase().replace(' ', '-')}`}
+                                    />
+                                    <div className="cctv-vignette-overlay" />
+                                    <div className="cctv-scanlines" />
+                                  </div>
+                                  <div className="cctv-h-meta-top">
+                                    <div className="cctv-h-id-wrap">
+                                      <span className={`cam-status-dot ${cam.status}`} />
+                                      <span className="cctv-h-cam-id">{cam.id}</span>
+                                    </div>
+                                    {cam.recording && (
+                                      <div className="cam-rec-badge compact">
+                                        <span className="cam-rec-dot" />
+                                        <span className="cam-rec-text">REC</span>
+                                      </div>
+                                    )}
+                                  </div>
+                                  <div className="cctv-h-name-watermark">
+                                    <span>{cam.name}</span>
+                                  </div>
+                                  <div className="cctv-h-meta-bottom">
+                                    <span className="cctv-h-time">{liveCctvTime || cam.time}</span>
+                                    <span className="cctv-h-res">1080P</span>
+                                  </div>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+
+                          {/* Right Sidebar: 3 Narrow Vertically Stacked Cards */}
+                          <div className="cctv-side-col right-side" role="region" aria-label="East Sector Feeds">
+                            {rightSideCams.map((cam, idx) => (
+                              <div
+                                key={`right-${cam.id}-${idx}`}
+                                className={`cctv-side-tile ${cam.id === selectedCamId ? 'is-selected' : ''}`}
+                                onClick={() => setSelectedCamId(cam.id)}
+                                title={`Focus ${cam.id} (${cam.name}) on main monitor`}
+                              >
+                                <div className="cctv-footage-wrapper">
+                                  <img
+                                    src={cam.image}
+                                    alt={`${cam.id} — ${cam.name}`}
+                                    className={`cctv-footage-img ${cam.id.toLowerCase().replace(' ', '-')}`}
+                                  />
+                                  <div className="cctv-vignette-overlay" />
+                                  <div className="cctv-scanlines" />
+                                </div>
+                                <div className="cctv-side-meta-top">
+                                  <span className={`cam-status-dot ${cam.status}`} />
+                                  <span className="cctv-side-cam-id">{cam.id}</span>
+                                  {cam.recording && <span className="cam-rec-dot pulse" title="Recording active" />}
+                                </div>
+                                <div className="cctv-side-name-vertical">
+                                  <span>{cam.name}</span>
+                                </div>
+                                <div className="cctv-side-meta-bottom">
+                                  <span className="cctv-side-status-text">{cam.status === 'online' ? 'LIVE' : 'STANDBY'}</span>
+                                </div>
+                              </div>
+                            ))}
+                          </div>
                         </div>
                       </div>
                     </section>
 
-                    {/* Right: Recent Detections */}
+                    {/* Right: Recent Detections (Matching Notifications Layout) */}
                     <section
                       className="camera-card recent-detections-card"
                       style={cardSurfaceStyle}
@@ -2146,21 +2600,87 @@ export default function App() {
                         <h2 className="dashboard-card-title" style={{ color: previewHeaderStyles.color }}>
                           Recent Detections
                         </h2>
+                        {unreadDetectionsCount > 0 && (
+                          <span className="notifications-badge-pill">
+                            {`${unreadDetectionsCount} NEW`}
+                          </span>
+                        )}
                       </div>
 
-                      <div className="recent-detections-body">
-                        <div className="detections-list" role="feed" aria-label="Camera detection events">
-                          {recentDetections.map((item) => (
-                            <div key={item.id} className="detection-row" role="article">
-                              <div className={`detection-dot-badge ${item.type}`}>
-                                <span className="detection-dot" />
+                      <div className="notifications-card-body">
+                        <div className="notifications-list" role="feed" aria-label="Camera detection events">
+                          {cameraDetections.map((item) => (
+                            <div
+                              key={item.id}
+                              className={`notif-list-item ${item.unread ? 'is-unread' : ''}`}
+                              onClick={() => {
+                                setCameraDetections((prev) =>
+                                  prev.map((n) => (n.id === item.id ? { ...n, unread: !n.unread } : n))
+                                );
+                              }}
+                              role="article"
+                              tabIndex={0}
+                              title="Click to toggle read status"
+                            >
+                              {/* Avatar with overlapping sub-badge */}
+                              <div className="notif-avatar-wrapper">
+                                <div className="notif-avatar-img-wrap">
+                                  <img
+                                    src={item.avatar}
+                                    alt={item.actor}
+                                    className="notif-avatar-img"
+                                    onError={(e) => {
+                                      e.currentTarget.style.display = 'none';
+                                    }}
+                                  />
+                                </div>
+                                <div className={`notif-avatar-subbadge ${item.type}`}>
+                                  {item.type === 'alert' ? (
+                                    <AlertTriangle size={9.5} strokeWidth={2.4} />
+                                  ) : item.type === 'success' ? (
+                                    <Check size={9.5} strokeWidth={2.4} />
+                                  ) : (
+                                    <Info size={9.5} strokeWidth={2.4} />
+                                  )}
+                                </div>
                               </div>
-                              <div className="detection-info">
-                                <span className="detection-title">{item.title}</span>
-                                <span className="detection-meta">{item.meta}</span>
+
+                              {/* Single-line detection text */}
+                              <div className="notif-row-text">
+                                <span className="notif-actor-name">{item.actor}</span>
+                                <span className="notif-action-text"> {item.action} in · </span>
+                                <span className="notif-folder-icon" aria-hidden="true">📁</span>
+                                {item.target && <span className="notif-target-text"> {item.target} · </span>}
+                                <span className="notif-time-text">{item.time}</span>
                               </div>
+
+                              {/* Red unread indicator dot on right */}
+                              {item.unread && (
+                                <span className="notif-unread-red-dot" title="Unread detection" />
+                              )}
                             </div>
                           ))}
+                        </div>
+
+                        {/* Card Footer matching Reference Image */}
+                        <div className="notif-card-footer">
+                          <span className="notif-page-info">Page 1 of 1</span>
+                          <div className="notif-footer-btns">
+                            <button
+                              type="button"
+                              className="notif-pill-btn"
+                              aria-label="Previous detections page"
+                            >
+                              PREV
+                            </button>
+                            <button
+                              type="button"
+                              className="notif-pill-btn"
+                              aria-label="Next detections page"
+                            >
+                              NEXT
+                            </button>
+                          </div>
                         </div>
                       </div>
                     </section>
@@ -2222,24 +2742,36 @@ export default function App() {
                     </button>
                   </div>
 
-                  {/* 2. Top Row: 4 KPI Cards */}
+                  {/* 2. Top Row: 4 KPI Cards (Approved Reference Image 2 Design) */}
                   <div className="reports-kpi-grid">
-                    <div className="report-kpi-card" style={cardSurfaceStyle}>
-                      <span className="report-kpi-label">REPORTS GENERATED</span>
-                      <span className="report-kpi-val">248</span>
-                    </div>
-                    <div className="report-kpi-card" style={cardSurfaceStyle}>
-                      <span className="report-kpi-label">AVG GENERATION</span>
-                      <span className="report-kpi-val">1.2s</span>
-                    </div>
-                    <div className="report-kpi-card" style={cardSurfaceStyle}>
-                      <span className="report-kpi-label">DATA POINTS</span>
-                      <span className="report-kpi-val">84.2K</span>
-                    </div>
-                    <div className="report-kpi-card" style={cardSurfaceStyle}>
-                      <span className="report-kpi-label">SCHEDULED</span>
-                      <span className="report-kpi-val">12</span>
-                    </div>
+                    <KpiSummaryCard
+                      icon={ClipboardCheck}
+                      accent="blue"
+                      value="248"
+                      label="Reports Generated"
+                      style={cardSurfaceStyle}
+                    />
+                    <KpiSummaryCard
+                      icon={Clock}
+                      accent="yellow"
+                      value="1.2s"
+                      label="Avg Generation"
+                      style={cardSurfaceStyle}
+                    />
+                    <KpiSummaryCard
+                      icon={BarChart2}
+                      accent="cyan"
+                      value="84.2K"
+                      label="Data Points"
+                      style={cardSurfaceStyle}
+                    />
+                    <KpiSummaryCard
+                      icon={CalendarCheck}
+                      accent="green"
+                      value="12"
+                      label="Scheduled Jobs"
+                      style={cardSurfaceStyle}
+                    />
                   </div>
 
                   {/* 3. Middle Row: Two Charts */}
@@ -2388,18 +2920,61 @@ export default function App() {
 
             if (previewScreen === 'Orders') {
               const ordersList = [
-                { id: 'ORD-1042', customer: 'Acme Corporation', status: 'Delivered', amount: '$12,400', date: 'Jun 18' },
-                { id: 'ORD-1041', customer: 'Globex Ltd', status: 'Processing', amount: '$8,750', date: 'Jun 17' },
-                { id: 'ORD-1040', customer: 'Initech', status: 'Pending', amount: '$5,200', date: 'Jun 16' },
-                { id: 'ORD-1039', customer: 'Umbrella Co', status: 'Shipped', amount: '$22,100', date: 'Jun 15' },
-                { id: 'ORD-1038', customer: 'Waystar Royco', status: 'Delivered', amount: '$9,800', date: 'Jun 14' },
-                { id: 'ORD-1037', customer: 'Stark Industries', status: 'Processing', amount: '$31,500', date: 'Jun 13' },
-                { id: 'ORD-1036', customer: 'Wayne Enterprises', status: 'Delivered', amount: '$18,240', date: 'Jun 12' },
+                // 12 Pending orders
+                { id: 'ORD-1048', customer: 'Nexus Dynamics', status: 'Pending', amount: '$7,840', date: 'Jun 22' },
+                { id: 'ORD-1045', customer: 'Saratoga Tech', status: 'Pending', amount: '$11,200', date: 'Jun 20' },
+                { id: 'ORD-1040', customer: 'Initech Systems', status: 'Pending', amount: '$5,200', date: 'Jun 16' },
                 { id: 'ORD-1035', customer: 'Soylent Corp', status: 'Pending', amount: '$4,120', date: 'Jun 11' },
-                { id: 'ORD-1034', customer: 'Hooli Inc', status: 'Shipped', amount: '$27,900', date: 'Jun 10' },
-                { id: 'ORD-1033', customer: 'Cyberdyne Systems', status: 'Delivered', amount: '$14,650', date: 'Jun 09' },
+                { id: 'ORD-1029', customer: 'Pied Piper Cloud', status: 'Pending', amount: '$15,400', date: 'Jun 05' },
+                { id: 'ORD-1026', customer: 'Dunder Mifflin Paper', status: 'Pending', amount: '$3,890', date: 'Jun 02' },
+                { id: 'ORD-1022', customer: 'Starlight Media', status: 'Pending', amount: '$9,150', date: 'May 28' },
+                { id: 'ORD-1018', customer: 'Aperture Science', status: 'Pending', amount: '$14,200', date: 'May 24' },
+                { id: 'ORD-1014', customer: 'Omni Consumer Tech', status: 'Pending', amount: '$6,750', date: 'May 20' },
+                { id: 'ORD-1009', customer: 'Tyrell Aerospace', status: 'Pending', amount: '$8,320', date: 'May 16' },
+                { id: 'ORD-1005', customer: 'Black Mesa Labs', status: 'Pending', amount: '$12,600', date: 'May 12' },
+                { id: 'ORD-1001', customer: 'Vehement Capital', status: 'Pending', amount: '$5,980', date: 'May 08' },
+
+                // 12 Processing orders
+                { id: 'ORD-1049', customer: 'Hyperion Energy', status: 'Processing', amount: '$19,400', date: 'Jun 22' },
+                { id: 'ORD-1046', customer: 'Vandelay Industries', status: 'Processing', amount: '$6,450', date: 'Jun 21' },
+                { id: 'ORD-1041', customer: 'Globex Corporation', status: 'Processing', amount: '$8,750', date: 'Jun 17' },
+                { id: 'ORD-1037', customer: 'Stark Industries', status: 'Processing', amount: '$31,500', date: 'Jun 13' },
                 { id: 'ORD-1032', customer: 'Massive Dynamic', status: 'Processing', amount: '$10,300', date: 'Jun 08' },
-                { id: 'ORD-1031', customer: 'Tyrell Corp', status: 'Delivered', amount: '$16,780', date: 'Jun 07' },
+                { id: 'ORD-1028', customer: 'Wonka Confections', status: 'Processing', amount: '$7,620', date: 'Jun 04' },
+                { id: 'ORD-1024', customer: 'Bluth Development', status: 'Processing', amount: '$13,800', date: 'May 30' },
+                { id: 'ORD-1020', customer: 'Kavinsky Logistics', status: 'Processing', amount: '$9,400', date: 'May 26' },
+                { id: 'ORD-1016', customer: 'Morozov Analytics', status: 'Processing', amount: '$22,900', date: 'May 22' },
+                { id: 'ORD-1011', customer: 'Zephyr Networks', status: 'Processing', amount: '$11,100', date: 'May 18' },
+                { id: 'ORD-1007', customer: 'Hansen Robotics', status: 'Processing', amount: '$16,350', date: 'May 14' },
+                { id: 'ORD-1003', customer: 'Prestige Worldwide', status: 'Processing', amount: '$8,800', date: 'May 10' },
+
+                // 12 Delivered orders
+                { id: 'ORD-1050', customer: 'Sterling Cooper Media', status: 'Delivered', amount: '$14,800', date: 'Jun 23' },
+                { id: 'ORD-1047', customer: 'Wayne Enterprises', status: 'Delivered', amount: '$28,400', date: 'Jun 21' },
+                { id: 'ORD-1042', customer: 'Acme Corporation', status: 'Delivered', amount: '$12,400', date: 'Jun 18' },
+                { id: 'ORD-1038', customer: 'Waystar Royco', status: 'Delivered', amount: '$9,800', date: 'Jun 14' },
+                { id: 'ORD-1036', customer: 'Wayne Global HQ', status: 'Delivered', amount: '$18,240', date: 'Jun 12' },
+                { id: 'ORD-1033', customer: 'Cyberdyne Systems', status: 'Delivered', amount: '$14,650', date: 'Jun 09' },
+                { id: 'ORD-1031', customer: 'Tyrell Corp Global', status: 'Delivered', amount: '$16,780', date: 'Jun 07' },
+                { id: 'ORD-1027', customer: 'Gringotts Financial', status: 'Delivered', amount: '$21,300', date: 'Jun 03' },
+                { id: 'ORD-1023', customer: 'Oceanic Transport', status: 'Delivered', amount: '$10,950', date: 'May 29' },
+                { id: 'ORD-1019', customer: 'Gekko & Co Partners', status: 'Delivered', amount: '$34,600', date: 'May 25' },
+                { id: 'ORD-1015', customer: 'Sovereign Solutions', status: 'Delivered', amount: '$15,120', date: 'May 21' },
+                { id: 'ORD-1012', customer: 'Strickland Propane', status: 'Delivered', amount: '$7,250', date: 'May 19' },
+
+                // 12 Shipped orders
+                { id: 'ORD-1044', customer: 'LexCorp International', status: 'Shipped', amount: '$38,200', date: 'Jun 19' },
+                { id: 'ORD-1039', customer: 'Umbrella Corporation', status: 'Shipped', amount: '$22,100', date: 'Jun 15' },
+                { id: 'ORD-1034', customer: 'Hooli Inc Technologies', status: 'Shipped', amount: '$27,900', date: 'Jun 10' },
+                { id: 'ORD-1030', customer: 'Los Pollos Hermanos', status: 'Shipped', amount: '$9,650', date: 'Jun 06' },
+                { id: 'ORD-1025', customer: 'Oscorp BioSciences', status: 'Shipped', amount: '$41,200', date: 'May 31' },
+                { id: 'ORD-1021', customer: 'Nakatomi Trading Co', status: 'Shipped', amount: '$17,500', date: 'May 27' },
+                { id: 'ORD-1017', customer: 'Monsters Energy Corp', status: 'Shipped', amount: '$12,800', date: 'May 23' },
+                { id: 'ORD-1013', customer: 'Chum Bucket Foods', status: 'Shipped', amount: '$4,920', date: 'May 20' },
+                { id: 'ORD-1010', customer: 'Krusty Krab Enterprises', status: 'Shipped', amount: '$18,700', date: 'May 17' },
+                { id: 'ORD-1006', customer: 'Spectre Holdings', status: 'Shipped', amount: '$33,400', date: 'May 13' },
+                { id: 'ORD-1002', customer: 'Monolith Productions', status: 'Shipped', amount: '$14,100', date: 'May 09' },
+                { id: 'ORD-1000', customer: 'Cyberdyne Robotics', status: 'Shipped', amount: '$19,800', date: 'May 05' },
               ];
 
               const filteredOrders = ordersList.filter((ord) => {
@@ -2409,6 +2984,12 @@ export default function App() {
                   ord.customer.toLowerCase().includes(orderSearch.toLowerCase());
                 return matchesFilter && matchesSearch;
               });
+
+              const PAGE_SIZE = 12;
+              const totalFiltered = filteredOrders.length;
+              const totalPages = Math.max(1, Math.ceil(totalFiltered / PAGE_SIZE));
+              const safePage = Math.min(orderPage, totalPages);
+              const displayedOrders = filteredOrders.slice((safePage - 1) * PAGE_SIZE, safePage * PAGE_SIZE);
 
               return (
                 <div className="orders-preview-canvas">
@@ -2438,7 +3019,43 @@ export default function App() {
                     </button>
                   </div>
 
-                  {/* 2. Main Parent Orders Card */}
+                  {/* 2. Orders Summary KPI Cards Row (All Cards Same & Clean) */}
+                  <div className="orders-kpi-grid">
+                    <KpiSummaryCard
+                      icon={ClipboardCheck}
+                      accent="blue"
+                      value="12"
+                      label="For Review"
+                      onClick={() => { setOrderStatusFilter('Pending'); setOrderPage(1); }}
+                      style={cardSurfaceStyle}
+                    />
+                    <KpiSummaryCard
+                      icon={Clock}
+                      accent="yellow"
+                      value="12"
+                      label="For Follow up"
+                      onClick={() => { setOrderStatusFilter('Processing'); setOrderPage(1); }}
+                      style={cardSurfaceStyle}
+                    />
+                    <KpiSummaryCard
+                      icon={AlertCircle}
+                      accent="cyan"
+                      value="48"
+                      label="For Info"
+                      onClick={() => { setOrderStatusFilter('All'); setOrderPage(1); }}
+                      style={cardSurfaceStyle}
+                    />
+                    <KpiSummaryCard
+                      icon={Activity}
+                      accent="green"
+                      value="12"
+                      label="For Monitoring"
+                      onClick={() => { setOrderStatusFilter('Delivered'); setOrderPage(1); }}
+                      style={cardSurfaceStyle}
+                    />
+                  </div>
+
+                  {/* 3. Main Parent Orders Card */}
                   <section
                     className="orders-card"
                     style={cardSurfaceStyle}
@@ -2453,7 +3070,7 @@ export default function App() {
                           className="orders-search-input"
                           placeholder="Search orders..."
                           value={orderSearch}
-                          onChange={(e) => setOrderSearch(e.target.value)}
+                          onChange={(e) => { setOrderSearch(e.target.value); setOrderPage(1); }}
                           aria-label="Search orders"
                         />
                       </div>
@@ -2466,7 +3083,7 @@ export default function App() {
                               key={filter}
                               type="button"
                               className={`order-filter-pill ${isActive ? 'active' : ''}`}
-                              onClick={() => setOrderStatusFilter(filter)}
+                              onClick={() => { setOrderStatusFilter(filter); setOrderPage(1); }}
                               aria-checked={isActive}
                               role="radio"
                             >
@@ -2491,7 +3108,7 @@ export default function App() {
                           </tr>
                         </thead>
                         <tbody>
-                          {filteredOrders.map((ord) => (
+                          {displayedOrders.map((ord) => (
                             <tr key={ord.id} className="orders-table-row">
                               <td className="td-order-id">
                                 <span className="order-id-link">{ord.id}</span>
@@ -2522,37 +3139,35 @@ export default function App() {
 
                     {/* Footer / Pagination */}
                     <div className="orders-table-footer">
-                      <span className="orders-pagination-info">Showing 1–12 of 1,284</span>
+                      <span className="orders-pagination-info">
+                        Showing {displayedOrders.length > 0 ? (safePage - 1) * PAGE_SIZE + 1 : 0}–{(safePage - 1) * PAGE_SIZE + displayedOrders.length} of {orderStatusFilter === 'All' ? '1,284' : totalFiltered}
+                      </span>
 
                       <div className="orders-pagination-controls" aria-label="Pagination">
                         <button
                           type="button"
                           className="btn-page-nav"
-                          disabled={orderPage === 1}
+                          disabled={safePage === 1}
                           onClick={() => setOrderPage((p) => Math.max(1, p - 1))}
                           aria-label="Previous page"
                         >
                           <ChevronLeft size={14} />
                         </button>
-                        <button
-                          type="button"
-                          className={`btn-page-num ${orderPage === 1 ? 'active' : ''}`}
-                          onClick={() => setOrderPage(1)}
-                        >
-                          1
-                        </button>
-                        <button
-                          type="button"
-                          className={`btn-page-num ${orderPage === 2 ? 'active' : ''}`}
-                          onClick={() => setOrderPage(2)}
-                        >
-                          2
-                        </button>
+                        {Array.from({ length: Math.min(totalPages, 3) }, (_, i) => i + 1).map((pageNum) => (
+                          <button
+                            key={pageNum}
+                            type="button"
+                            className={`btn-page-num ${safePage === pageNum ? 'active' : ''}`}
+                            onClick={() => setOrderPage(pageNum)}
+                          >
+                            {pageNum}
+                          </button>
+                        ))}
                         <button
                           type="button"
                           className="btn-page-nav"
-                          disabled={orderPage === 2}
-                          onClick={() => setOrderPage((p) => Math.min(2, p + 1))}
+                          disabled={safePage >= totalPages}
+                          onClick={() => setOrderPage((p) => Math.min(totalPages, p + 1))}
                           aria-label="Next page"
                         >
                           <ChevronRight size={14} />
@@ -2678,69 +3293,42 @@ export default function App() {
 
                   <div className="dashboard-card-body perf-overview-body">
                     <div className="perf-kpi-grid">
-                      {/* KPI 1: Revenue */}
-                      <div
-                        className="perf-kpi-card"
-                        style={{
-                          ...previewNestedStyles,
-                          borderRadius: '10px',
-                        }}
-                      >
-                        <span className="kpi-label">REVENUE</span>
-                        <span className="kpi-value">$2.41M</span>
-                        <div className="kpi-trend-pill positive">
-                          <span className="trend-arrow">▲</span>
-                          <span>+12.5%</span>
-                        </div>
-                      </div>
-
-                      {/* KPI 2: Open Orders */}
-                      <div
-                        className="perf-kpi-card"
-                        style={{
-                          ...previewNestedStyles,
-                          borderRadius: '10px',
-                        }}
-                      >
-                        <span className="kpi-label">OPEN ORDERS</span>
-                        <span className="kpi-value">1,284</span>
-                        <div className="kpi-trend-pill positive">
-                          <span className="trend-arrow">▲</span>
-                          <span>+3.2%</span>
-                        </div>
-                      </div>
-
-                      {/* KPI 3: Inventory */}
-                      <div
-                        className="perf-kpi-card"
-                        style={{
-                          ...previewNestedStyles,
-                          borderRadius: '10px',
-                        }}
-                      >
-                        <span className="kpi-label">INVENTORY</span>
-                        <span className="kpi-value">8,540</span>
-                        <div className="kpi-trend-pill negative">
-                          <span className="trend-arrow">▼</span>
-                          <span>-1.8%</span>
-                        </div>
-                      </div>
-
-                      {/* KPI 4: Active Users */}
-                      <div
-                        className="perf-kpi-card"
-                        style={{
-                          ...previewNestedStyles,
-                          borderRadius: '10px',
-                        }}
-                      >
-                        <span className="kpi-label">ACTIVE USERS</span>
-                        <span className="kpi-value">342</span>
-                        <div className="kpi-trend-pill positive">
-                          <span className="trend-arrow">▲</span>
-                          <span>+5</span>
-                        </div>
-                      </div>
+                      <KpiSummaryCard
+                        icon={DollarSign}
+                        accent="blue"
+                        value="$2.41M"
+                        label="Revenue"
+                        trend="+12.5%"
+                        trendPositive={true}
+                        style={{ ...previewNestedStyles, borderRadius: '14px' }}
+                      />
+                      <KpiSummaryCard
+                        icon={Clock}
+                        accent="yellow"
+                        value="1,284"
+                        label="Open Orders"
+                        trend="+3.2%"
+                        trendPositive={true}
+                        style={{ ...previewNestedStyles, borderRadius: '14px' }}
+                      />
+                      <KpiSummaryCard
+                        icon={AlertCircle}
+                        accent="cyan"
+                        value="8,540"
+                        label="Inventory"
+                        trend="-1.8%"
+                        trendPositive={false}
+                        style={{ ...previewNestedStyles, borderRadius: '14px' }}
+                      />
+                      <KpiSummaryCard
+                        icon={Activity}
+                        accent="green"
+                        value="342"
+                        label="Active Users"
+                        trend="+5"
+                        trendPositive={true}
+                        style={{ ...previewNestedStyles, borderRadius: '14px' }}
+                      />
                     </div>
                   </div>
                 </section>
@@ -2899,6 +3487,129 @@ export default function App() {
                       </ul>
                     </div>
                   </section>
+
+                  {/* Card 3 — Order Statistics (Dummy Analytics Card) */}
+                  <section
+                    className="dashboard-card order-statistics-card"
+                    style={cardSurfaceStyle}
+                    aria-label="Order Statistics"
+                  >
+                    <div
+                      className="dashboard-card-header"
+                      style={{
+                        backgroundColor: previewHeaderStyles.backgroundColor,
+                        borderBottom: previewHeaderStyles.borderBottom,
+                      }}
+                    >
+                      <h2 className="dashboard-card-title" style={{ color: previewHeaderStyles.color }}>
+                        Order Statistics
+                      </h2>
+                      <span className="order-stats-badge" title="Fulfillment efficiency rate">
+                        85.8%
+                      </span>
+                    </div>
+
+                    <div className="dashboard-card-body order-statistics-body">
+                      {/* Metric Header with Mini Donut Visualization */}
+                      <div className="order-stats-top-row">
+                        <div className="order-stats-total-box">
+                          <span className="order-stats-kpi-label">Total Orders</span>
+                          <span className="order-stats-kpi-val">1,284</span>
+                        </div>
+
+                        {/* Donut-style visualization */}
+                        <div className="order-stats-donut-container" title="85.8% Completed, 14.2% Pending">
+                          <svg className="order-stats-donut-svg" viewBox="0 0 36 36">
+                            <path
+                              className="donut-bg-ring"
+                              d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
+                            />
+                            <path
+                              className="donut-pending-segment"
+                              strokeDasharray="14.2, 100"
+                              strokeDashoffset="-85.8"
+                              d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
+                            />
+                            <path
+                              className="donut-completed-segment"
+                              strokeDasharray="85.8, 100"
+                              strokeDashoffset="0"
+                              d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
+                            />
+                          </svg>
+                          <span className="order-stats-donut-pct">86%</span>
+                        </div>
+                      </div>
+
+                      {/* Compact Progress Bars Group */}
+                      <div className="order-stats-progress-group">
+                        {/* Progress Bar 1: Fulfillment Rate */}
+                        <div className="order-stats-progress-wrap">
+                          <div className="order-stats-bar-track">
+                            <div
+                              className="order-stats-bar-completed"
+                              style={{ width: '85.8%' }}
+                              title="Completed: 1,102 (85.8%)"
+                            />
+                            <div
+                              className="order-stats-bar-pending"
+                              style={{ width: '14.2%' }}
+                              title="Pending: 182 (14.2%)"
+                            />
+                          </div>
+                          <div className="order-stats-bar-subtext">
+                            <span>Fulfillment Rate</span>
+                            <span className="rate-num">85.8%</span>
+                          </div>
+                        </div>
+
+                        {/* Progress Bar 2: On-Time Delivery */}
+                        <div className="order-stats-progress-wrap">
+                          <div className="order-stats-bar-track">
+                            <div
+                              className="order-stats-bar-ontime"
+                              style={{ width: '92.4%' }}
+                              title="On-Time: 1,186 (92.4%)"
+                            />
+                            <div
+                              className="order-stats-bar-delayed"
+                              style={{ width: '7.6%' }}
+                              title="Delayed: 98 (7.6%)"
+                            />
+                          </div>
+                          <div className="order-stats-bar-subtext">
+                            <span>On-Time Delivery</span>
+                            <span className="rate-num">92.4%</span>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Small Status Indicators Breakdown */}
+                      <div className="order-stats-status-list">
+                        <div className="order-stats-status-item">
+                          <div className="status-item-left">
+                            <span className="order-status-dot completed" />
+                            <span className="order-status-name">Completed</span>
+                          </div>
+                          <div className="status-item-right">
+                            <span className="order-status-count">1,102</span>
+                            <span className="order-status-pct">85.8%</span>
+                          </div>
+                        </div>
+
+                        <div className="order-stats-status-item">
+                          <div className="status-item-left">
+                            <span className="order-status-dot pending" />
+                            <span className="order-status-name">Pending</span>
+                          </div>
+                          <div className="status-item-right">
+                            <span className="order-status-count">182</span>
+                            <span className="order-status-pct">14.2%</span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </section>
                 </div>
 
                 {/* 5. Low Stock Alert Toast */}
@@ -3030,43 +3741,160 @@ export default function App() {
                   ))}
                 </div>
 
-                {/* Selectable Rows List */}
-                <div className="selection-list" role="listbox" aria-multiselectable="true">
-                  {selectionRows.map((label, idx) => {
-                    const isSelected = selectedItems.includes(idx);
-                    return (
-                      <div
-                        key={idx}
-                        className={`selection-item-row ${isSelected ? 'selected' : ''}`}
-                        onClick={() => toggleRowSelection(idx)}
-                        role="option"
-                        aria-selected={isSelected}
-                        tabIndex={0}
-                        onKeyDown={(e) => {
-                          if (e.key === ' ' || e.key === 'Enter') {
-                            e.preventDefault();
-                            toggleRowSelection(idx);
-                          }
-                        }}
-                      >
-                        <div className="selection-item-left">
-                          <div className="custom-radio">
-                            <span className="custom-radio-inner" />
+                {selectionTab === 'Overview' && (
+                  <>
+                    {/* Selectable Rows List */}
+                    <div className="selection-list" role="listbox" aria-multiselectable="true">
+                      {selectionRows.map((label, idx) => {
+                        const isSelected = selectedItems.includes(idx);
+                        return (
+                          <div
+                            key={idx}
+                            className={`selection-item-row ${isSelected ? 'selected' : ''}`}
+                            onClick={() => toggleRowSelection(idx)}
+                            role="option"
+                            aria-selected={isSelected}
+                            tabIndex={0}
+                            onKeyDown={(e) => {
+                              if (e.key === ' ' || e.key === 'Enter') {
+                                e.preventDefault();
+                                toggleRowSelection(idx);
+                              }
+                            }}
+                          >
+                            <div className="selection-item-left">
+                              <div className="custom-radio">
+                                <span className="custom-radio-inner" />
+                              </div>
+                              <span className="selection-item-text">
+                                {isSelected ? 'Selected item' : 'Unselected item'}
+                              </span>
+                            </div>
+
+                            {isSelected && <span className="active-pill-tag">Active</span>}
                           </div>
-                          <span className="selection-item-text">
-                            {isSelected ? 'Selected item' : 'Unselected item'}
-                          </span>
+                        );
+                      })}
+                    </div>
+
+                    {/* Dummy Content Panel - Fills white space */}
+                    <div className="selection-dummy-section">
+                      <div className="selection-dummy-header">
+                        <div className="selection-dummy-title-wrap">
+                          <span className="selection-dummy-dot" />
+                          <span className="selection-dummy-title">Selection Summary</span>
                         </div>
-
-                        {isSelected && <span className="active-pill-tag">Active</span>}
+                        <span className="selection-dummy-status">Live Sync</span>
                       </div>
-                    );
-                  })}
-                </div>
+                      <p className="selection-dummy-description">
+                        Selected rows consume active theme tokens with subtle brand tints, radio fill animations, and contextual status badges.
+                      </p>
+                      <div className="selection-dummy-stats">
+                        <div className="selection-dummy-stat">
+                          <span className="dummy-stat-label">Active</span>
+                          <span className="dummy-stat-value">{selectedItems.length}</span>
+                        </div>
+                        <div className="selection-dummy-stat">
+                          <span className="dummy-stat-label">Inactive</span>
+                          <span className="dummy-stat-value">{selectionRows.length - selectedItems.length}</span>
+                        </div>
+                        <div className="selection-dummy-stat">
+                          <span className="dummy-stat-label">Token</span>
+                          <span className="dummy-stat-value">Primary</span>
+                        </div>
+                        <div className="selection-dummy-stat">
+                          <span className="dummy-stat-label">Mode</span>
+                          <span className="dummy-stat-value">Multi</span>
+                        </div>
+                      </div>
+                    </div>
+                  </>
+                )}
 
-                {/* Selection Footer Badge */}
-                <div className="selection-footer-badge">
-                  <span>{selectedItems.length} selected items</span>
+                {selectionTab === 'Activity' && (
+                  <div className="selection-activity-list">
+                    <div className="selection-activity-item">
+                      <div className="activity-dot active" />
+                      <div className="activity-content">
+                        <div className="activity-title">Item 1 toggled to Active state</div>
+                        <div className="activity-time">2 minutes ago · User action</div>
+                      </div>
+                    </div>
+                    <div className="selection-activity-item">
+                      <div className="activity-dot" />
+                      <div className="activity-content">
+                        <div className="activity-title">Primary brand theme tokens applied</div>
+                        <div className="activity-time">14 minutes ago · Theme Engine</div>
+                      </div>
+                    </div>
+                    <div className="selection-activity-item">
+                      <div className="activity-dot active" />
+                      <div className="activity-content">
+                        <div className="activity-title">Item 5 toggled to Active state</div>
+                        <div className="activity-time">32 minutes ago · User action</div>
+                      </div>
+                    </div>
+                    <div className="selection-activity-item">
+                      <div className="activity-dot" />
+                      <div className="activity-content">
+                        <div className="activity-title">Selection group initialized with defaults</div>
+                        <div className="activity-time">1 hour ago · System</div>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {selectionTab === 'Settings' && (
+                  <div className="selection-settings-list">
+                    <div className="selection-setting-row">
+                      <div className="setting-info">
+                        <span className="setting-name">Multi-select Mode</span>
+                        <span className="setting-desc">Permit multiple rows to be toggled concurrently</span>
+                      </div>
+                      <span className="setting-badge">Enabled</span>
+                    </div>
+                    <div className="selection-setting-row">
+                      <div className="setting-info">
+                        <span className="setting-name">Show Status Badges</span>
+                        <span className="setting-desc">Display active badge pill next to selected items</span>
+                      </div>
+                      <span className="setting-badge">Enabled</span>
+                    </div>
+                    <div className="selection-setting-row">
+                      <div className="setting-info">
+                        <span className="setting-name">Theme Accent Highlighting</span>
+                        <span className="setting-desc">Apply brand subtle background color to active rows</span>
+                      </div>
+                      <span className="setting-badge">Enabled</span>
+                    </div>
+                  </div>
+                )}
+
+                {/* Selection Footer Row */}
+                <div className="selection-footer-row">
+                  <div className="selection-footer-badge">
+                    <span>{selectedItems.length} selected items</span>
+                  </div>
+                  {selectionTab === 'Overview' && (
+                    <div className="selection-footer-actions">
+                      <button
+                        type="button"
+                        className="selection-footer-action-btn"
+                        onClick={() => setSelectedItems(selectionRows.map((_, i) => i))}
+                        title="Select all rows"
+                      >
+                        Select All
+                      </button>
+                      <button
+                        type="button"
+                        className="selection-footer-action-btn"
+                        onClick={() => setSelectedItems([])}
+                        title="Deselect all rows"
+                      >
+                        Clear
+                      </button>
+                    </div>
+                  )}
                 </div>
               </section>
             </div>
