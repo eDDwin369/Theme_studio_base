@@ -2978,7 +2978,7 @@ html, body {
   display: flex;
   flex-direction: column;
   justify-content: flex-end;
-  padding: 18px 22px 18px 22px;
+  padding: 22px 20px 10px 16px;
   min-height: 0;
 }
 
@@ -3015,11 +3015,66 @@ html, body {
   color: var(--text-secondary);
 }
 
+/* Chart Wrapper with Y-Axis and X-Axis Mentions */
+.chart-wrapper-with-axes {
+  display: flex;
+  width: 100%;
+  height: 100%;
+  flex: 1;
+  min-height: 0;
+  gap: 6px;
+  position: relative;
+}
+
+.chart-y-axis {
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  width: 52px;
+  flex-shrink: 0;
+  height: 100%;
+}
+
+.chart-axis-title {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--text-tertiary, #94A3B8);
+  font-family: var(--font-sans);
+}
+
+.chart-axis-title.y-title {
+  position: absolute;
+  top: -18px;
+  left: 0;
+  white-space: nowrap;
+}
+
+.chart-y-ticks {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 46px; /* matches bottom: 46px of chart guide lines */
+}
+
+.y-tick-label {
+  position: absolute;
+  right: 4px;
+  transform: translateY(50%);
+  font-size: 10.5px;
+  font-weight: 600;
+  color: var(--text-tertiary, #94A3B8);
+  font-family: var(--font-mono, monospace);
+  line-height: 1;
+}
+
 /* Stacked Bar Chart - Scaled to use available vertical space */
 .bar-chart-container {
   width: 100%;
   flex: 1;
-  min-height: 300px;
+  min-height: 0;
   height: 100%;
   display: flex;
   flex-direction: column;
@@ -3032,7 +3087,7 @@ html, body {
   top: 0;
   left: 0;
   right: 0;
-  bottom: 26px;
+  bottom: 46px;
   pointer-events: none;
 }
 
@@ -3049,8 +3104,8 @@ html, body {
   display: flex;
   align-items: flex-end;
   justify-content: space-around;
-  height: calc(100% - 26px);
-  padding: 0 10px;
+  height: calc(100% - 24px);
+  padding: 0 8px;
   position: relative;
   z-index: 1;
 }
@@ -3068,7 +3123,7 @@ html, body {
 
 .chart-bar-track {
   width: 100%;
-  height: 100%;
+  height: calc(100% - 22px);
   display: flex;
   align-items: flex-end;
   justify-content: center;
@@ -3106,11 +3161,35 @@ html, body {
 }
 
 .chart-month-label {
-  font-size: 12px;
-  font-weight: 500;
+  font-size: 11.5px;
+  font-weight: 600;
   color: var(--text-secondary);
-  margin-top: 10px;
-  line-height: 1;
+  height: 18px;
+  margin-top: 4px;
+  line-height: 1.5;
+}
+
+.chart-x-axis-footer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 20px;
+  margin-top: 4px;
+}
+
+.chart-axis-title.x-title {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: var(--bg-hover, #F8FAFC);
+  padding: 1.5px 10px;
+  border-radius: 9999px;
+  border: 1px solid var(--border-subtle, rgba(226, 232, 240, 0.7));
+}
+
+[data-theme='dark'] .chart-axis-title.x-title {
+  background: rgba(255, 255, 255, 0.04);
+  border-color: rgba(255, 255, 255, 0.08);
 }
 
 /* Tooltip on Chart Bar Hover */
@@ -6317,7 +6396,7 @@ html, body {
   align-items: center;
   justify-content: space-between;
   gap: 16px;
-  padding: 14px 20px;
+  padding: 10px 20px;
   border-bottom: 1px solid var(--border-subtle, rgba(226, 232, 240, 0.6));
   flex-shrink: 0;
 }
@@ -6410,23 +6489,37 @@ html, body {
 /* Orders Data Table */
 .orders-table-body {
   flex: 1;
-  overflow-x: auto;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
   min-height: 0;
-  padding: 2px 20px;
+  padding: 0 20px;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.orders-table-body::-webkit-scrollbar {
+  display: none;
 }
 
 .orders-data-table {
   width: 100%;
+  height: 100%;
   border-collapse: collapse;
   text-align: left;
 }
 
+.orders-data-table thead {
+  height: 32px;
+}
+
 .orders-data-table thead tr {
   background-color: var(--brand-primary-subtle, rgba(79, 107, 255, 0.08));
+  height: 32px;
 }
 
 .orders-data-table thead th {
-  padding: 10px 14px;
+  padding: 6px 12px;
   font-size: 11px;
   font-weight: 700;
   color: var(--brand-primary, #3B82F6);
@@ -6438,13 +6531,13 @@ html, body {
 .orders-data-table thead th:first-child {
   border-top-left-radius: 6px;
   border-bottom-left-radius: 6px;
-  padding-left: 14px;
+  padding-left: 12px;
 }
 
 .orders-data-table thead th:last-child {
   border-top-right-radius: 6px;
   border-bottom-right-radius: 6px;
-  padding-right: 14px;
+  padding-right: 12px;
 }
 
 [data-theme='dark'] .orders-data-table thead tr {
@@ -6489,7 +6582,7 @@ html, body {
 }
 
 .orders-data-table tbody td {
-  padding: 8.5px 12px;
+  padding: 6.5px 12px;
   font-size: 13px;
   color: var(--text-secondary);
   vertical-align: middle;
@@ -6636,7 +6729,7 @@ html, body {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 12px 20px;
+  padding: 10px 20px;
   border-top: 1px solid var(--border-subtle, rgba(226, 232, 240, 0.6));
   flex-shrink: 0;
 }

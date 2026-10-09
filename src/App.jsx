@@ -2920,7 +2920,7 @@ export default function App() {
 
             if (previewScreen === 'Orders') {
               const ordersList = [
-                // 12 Pending orders
+                // 20 Pending orders
                 { id: 'ORD-1048', customer: 'Nexus Dynamics', status: 'Pending', amount: '$7,840', date: 'Jun 22' },
                 { id: 'ORD-1045', customer: 'Saratoga Tech', status: 'Pending', amount: '$11,200', date: 'Jun 20' },
                 { id: 'ORD-1040', customer: 'Initech Systems', status: 'Pending', amount: '$5,200', date: 'Jun 16' },
@@ -2933,8 +2933,16 @@ export default function App() {
                 { id: 'ORD-1009', customer: 'Tyrell Aerospace', status: 'Pending', amount: '$8,320', date: 'May 16' },
                 { id: 'ORD-1005', customer: 'Black Mesa Labs', status: 'Pending', amount: '$12,600', date: 'May 12' },
                 { id: 'ORD-1001', customer: 'Vehement Capital', status: 'Pending', amount: '$5,980', date: 'May 08' },
+                { id: 'ORD-1051', customer: 'Acme Industrial', status: 'Pending', amount: '$16,400', date: 'May 04' },
+                { id: 'ORD-1052', customer: 'Massive Storage', status: 'Pending', amount: '$7,200', date: 'Apr 29' },
+                { id: 'ORD-1053', customer: 'Helios Photonics', status: 'Pending', amount: '$11,850', date: 'Apr 25' },
+                { id: 'ORD-1054', customer: 'Nova Robotics', status: 'Pending', amount: '$13,400', date: 'Apr 21' },
+                { id: 'ORD-1055', customer: 'Pinnacle Logistics', status: 'Pending', amount: '$9,600', date: 'Apr 17' },
+                { id: 'ORD-1056', customer: 'Vanguard Defense', status: 'Pending', amount: '$18,900', date: 'Apr 13' },
+                { id: 'ORD-1057', customer: 'Altair Communications', status: 'Pending', amount: '$6,450', date: 'Apr 09' },
+                { id: 'ORD-1058', customer: 'Silverline Freight', status: 'Pending', amount: '$10,120', date: 'Apr 05' },
 
-                // 12 Processing orders
+                // 20 Processing orders
                 { id: 'ORD-1049', customer: 'Hyperion Energy', status: 'Processing', amount: '$19,400', date: 'Jun 22' },
                 { id: 'ORD-1046', customer: 'Vandelay Industries', status: 'Processing', amount: '$6,450', date: 'Jun 21' },
                 { id: 'ORD-1041', customer: 'Globex Corporation', status: 'Processing', amount: '$8,750', date: 'Jun 17' },
@@ -2947,8 +2955,16 @@ export default function App() {
                 { id: 'ORD-1011', customer: 'Zephyr Networks', status: 'Processing', amount: '$11,100', date: 'May 18' },
                 { id: 'ORD-1007', customer: 'Hansen Robotics', status: 'Processing', amount: '$16,350', date: 'May 14' },
                 { id: 'ORD-1003', customer: 'Prestige Worldwide', status: 'Processing', amount: '$8,800', date: 'May 10' },
+                { id: 'ORD-1059', customer: 'CyberTech Global', status: 'Processing', amount: '$14,500', date: 'May 06' },
+                { id: 'ORD-1060', customer: 'BioGenics Corp', status: 'Processing', amount: '$21,300', date: 'May 02' },
+                { id: 'ORD-1061', customer: 'Synapse AI Systems', status: 'Processing', amount: '$17,800', date: 'Apr 28' },
+                { id: 'ORD-1062', customer: 'Titanium Metals', status: 'Processing', amount: '$12,400', date: 'Apr 24' },
+                { id: 'ORD-1063', customer: 'AeroSpace Prime', status: 'Processing', amount: '$26,100', date: 'Apr 20' },
+                { id: 'ORD-1064', customer: 'Solomon Capital', status: 'Processing', amount: '$9,750', date: 'Apr 16' },
+                { id: 'ORD-1065', customer: 'Krypton Labs', status: 'Processing', amount: '$15,200', date: 'Apr 12' },
+                { id: 'ORD-1066', customer: 'Vector Dynamics', status: 'Processing', amount: '$18,300', date: 'Apr 08' },
 
-                // 12 Delivered orders
+                // 20 Delivered orders
                 { id: 'ORD-1050', customer: 'Sterling Cooper Media', status: 'Delivered', amount: '$14,800', date: 'Jun 23' },
                 { id: 'ORD-1047', customer: 'Wayne Enterprises', status: 'Delivered', amount: '$28,400', date: 'Jun 21' },
                 { id: 'ORD-1042', customer: 'Acme Corporation', status: 'Delivered', amount: '$12,400', date: 'Jun 18' },
@@ -2961,8 +2977,16 @@ export default function App() {
                 { id: 'ORD-1019', customer: 'Gekko & Co Partners', status: 'Delivered', amount: '$34,600', date: 'May 25' },
                 { id: 'ORD-1015', customer: 'Sovereign Solutions', status: 'Delivered', amount: '$15,120', date: 'May 21' },
                 { id: 'ORD-1012', customer: 'Strickland Propane', status: 'Delivered', amount: '$7,250', date: 'May 19' },
+                { id: 'ORD-1067', customer: 'Zenith Logistics', status: 'Delivered', amount: '$11,400', date: 'May 15' },
+                { id: 'ORD-1068', customer: 'Summit Media', status: 'Delivered', amount: '$13,850', date: 'May 11' },
+                { id: 'ORD-1069', customer: 'Vortex Holdings', status: 'Delivered', amount: '$24,600', date: 'May 07' },
+                { id: 'ORD-1070', customer: 'Atlas Global Inc', status: 'Delivered', amount: '$19,200', date: 'May 03' },
+                { id: 'ORD-1071', customer: 'Crestview Partners', status: 'Delivered', amount: '$8,950', date: 'Apr 29' },
+                { id: 'ORD-1072', customer: 'Pioneer Marine', status: 'Delivered', amount: '$16,700', date: 'Apr 25' },
+                { id: 'ORD-1073', customer: 'Beacon Networks', status: 'Delivered', amount: '$12,300', date: 'Apr 21' },
+                { id: 'ORD-1074', customer: 'Meridian Pharma', status: 'Delivered', amount: '$22,500', date: 'Apr 17' },
 
-                // 12 Shipped orders
+                // 20 Shipped orders
                 { id: 'ORD-1044', customer: 'LexCorp International', status: 'Shipped', amount: '$38,200', date: 'Jun 19' },
                 { id: 'ORD-1039', customer: 'Umbrella Corporation', status: 'Shipped', amount: '$22,100', date: 'Jun 15' },
                 { id: 'ORD-1034', customer: 'Hooli Inc Technologies', status: 'Shipped', amount: '$27,900', date: 'Jun 10' },
@@ -2975,6 +2999,14 @@ export default function App() {
                 { id: 'ORD-1006', customer: 'Spectre Holdings', status: 'Shipped', amount: '$33,400', date: 'May 13' },
                 { id: 'ORD-1002', customer: 'Monolith Productions', status: 'Shipped', amount: '$14,100', date: 'May 09' },
                 { id: 'ORD-1000', customer: 'Cyberdyne Robotics', status: 'Shipped', amount: '$19,800', date: 'May 05' },
+                { id: 'ORD-1075', customer: 'Aperture Orbital', status: 'Shipped', amount: '$29,400', date: 'May 01' },
+                { id: 'ORD-1076', customer: 'Quantum Dynamics', status: 'Shipped', amount: '$15,800', date: 'Apr 27' },
+                { id: 'ORD-1077', customer: 'Helix BioChem', status: 'Shipped', amount: '$23,100', date: 'Apr 23' },
+                { id: 'ORD-1078', customer: 'Ironclad Systems', status: 'Shipped', amount: '$11,900', date: 'Apr 19' },
+                { id: 'ORD-1079', customer: 'Sentry Defense', status: 'Shipped', amount: '$31,200', date: 'Apr 15' },
+                { id: 'ORD-1080', customer: 'Valence Chemical', status: 'Shipped', amount: '$16,400', date: 'Apr 11' },
+                { id: 'ORD-1081', customer: 'Apex Heavy Transport', status: 'Shipped', amount: '$20,500', date: 'Apr 07' },
+                { id: 'ORD-1082', customer: 'Solstice Tech', status: 'Shipped', amount: '$13,750', date: 'Apr 03' },
               ];
 
               const filteredOrders = ordersList.filter((ord) => {
@@ -2985,7 +3017,7 @@ export default function App() {
                 return matchesFilter && matchesSearch;
               });
 
-              const PAGE_SIZE = 12;
+              const PAGE_SIZE = 10;
               const totalFiltered = filteredOrders.length;
               const totalPages = Math.max(1, Math.ceil(totalFiltered / PAGE_SIZE));
               const safePage = Math.min(orderPage, totalPages);
@@ -3024,7 +3056,7 @@ export default function App() {
                     <KpiSummaryCard
                       icon={ClipboardCheck}
                       accent="blue"
-                      value="12"
+                      value="20"
                       label="For Review"
                       onClick={() => { setOrderStatusFilter('Pending'); setOrderPage(1); }}
                       style={cardSurfaceStyle}
@@ -3032,7 +3064,7 @@ export default function App() {
                     <KpiSummaryCard
                       icon={Clock}
                       accent="yellow"
-                      value="12"
+                      value="20"
                       label="For Follow up"
                       onClick={() => { setOrderStatusFilter('Processing'); setOrderPage(1); }}
                       style={cardSurfaceStyle}
@@ -3040,7 +3072,7 @@ export default function App() {
                     <KpiSummaryCard
                       icon={AlertCircle}
                       accent="cyan"
-                      value="48"
+                      value="80"
                       label="For Info"
                       onClick={() => { setOrderStatusFilter('All'); setOrderPage(1); }}
                       style={cardSurfaceStyle}
@@ -3048,7 +3080,7 @@ export default function App() {
                     <KpiSummaryCard
                       icon={Activity}
                       accent="green"
-                      value="12"
+                      value="20"
                       label="For Monitoring"
                       onClick={() => { setOrderStatusFilter('Delivered'); setOrderPage(1); }}
                       style={cardSurfaceStyle}
@@ -3368,58 +3400,83 @@ export default function App() {
                     </div>
 
                     <div className="dashboard-card-body revenue-trend-body">
-                      <div className="bar-chart-container">
-                        {/* Horizontal guide lines */}
-                        <div className="chart-grid-guides" aria-hidden="true">
-                          <div className="chart-guide-line" style={{ bottom: '75%' }} />
-                          <div className="chart-guide-line" style={{ bottom: '50%' }} />
-                          <div className="chart-guide-line" style={{ bottom: '25%' }} />
-                          <div className="chart-guide-line" style={{ bottom: '0%' }} />
+                      <div className="chart-wrapper-with-axes">
+                        {/* Y-Axis Label and Values */}
+                        <div className="chart-y-axis">
+                          <span className="chart-axis-title y-title" title="Y-Axis: Amount in thousands">
+                            Y-Axis: Amount ($k)
+                          </span>
+                          <div className="chart-y-ticks">
+                            <span className="y-tick-label" style={{ bottom: '100%' }}>$100k</span>
+                            <span className="y-tick-label" style={{ bottom: '75%' }}>$75k</span>
+                            <span className="y-tick-label" style={{ bottom: '50%' }}>$50k</span>
+                            <span className="y-tick-label" style={{ bottom: '25%' }}>$25k</span>
+                            <span className="y-tick-label" style={{ bottom: '0%' }}>$0</span>
+                          </div>
                         </div>
 
-                        {/* Stacked bar chart columns */}
-                        <div className="chart-bars-row">
-                          {chartData.map((item, idx) => {
-                            const totalHeight = Math.min(100, item.revHeight + item.profHeight);
-                            const profitPercentOfBar = (item.profHeight / (item.revHeight + item.profHeight)) * 100;
-                            const revPercentOfBar = 100 - profitPercentOfBar;
+                        {/* Main Chart Container */}
+                        <div className="bar-chart-container">
+                          {/* Horizontal guide lines */}
+                          <div className="chart-grid-guides" aria-hidden="true">
+                            <div className="chart-guide-line" style={{ bottom: '100%' }} />
+                            <div className="chart-guide-line" style={{ bottom: '75%' }} />
+                            <div className="chart-guide-line" style={{ bottom: '50%' }} />
+                            <div className="chart-guide-line" style={{ bottom: '25%' }} />
+                            <div className="chart-guide-line" style={{ bottom: '0%' }} />
+                          </div>
 
-                            return (
-                              <div
-                                key={item.month}
-                                className="chart-bar-group"
-                                onMouseEnter={() => setHoveredBarIndex(idx)}
-                                onMouseLeave={() => setHoveredBarIndex(null)}
-                              >
-                                <div className="chart-bar-track">
-                                  <div
-                                    className="chart-bar-column"
-                                    style={{ height: `${totalHeight}%` }}
-                                  >
-                                    <div
-                                      className="bar-seg-profit"
-                                      style={{ height: `${profitPercentOfBar}%` }}
-                                      title={`${item.month} Profit: ${item.profVal}`}
-                                    />
-                                    <div
-                                      className="bar-seg-revenue"
-                                      style={{ height: `${revPercentOfBar}%` }}
-                                      title={`${item.month} Revenue: ${item.revVal}`}
-                                    />
-                                  </div>
+                          {/* Stacked bar chart columns */}
+                          <div className="chart-bars-row">
+                            {chartData.map((item, idx) => {
+                              const totalHeight = Math.min(100, item.revHeight + item.profHeight);
+                              const profitPercentOfBar = (item.profHeight / (item.revHeight + item.profHeight)) * 100;
+                              const revPercentOfBar = 100 - profitPercentOfBar;
 
-                                  {hoveredBarIndex === idx && (
-                                    <div className="chart-bar-tooltip">
-                                      <span className="tooltip-month">{item.month}</span>
-                                      <span className="tooltip-line profit">Profit: {item.profVal}</span>
-                                      <span className="tooltip-line revenue">Revenue: {item.revVal}</span>
+                              return (
+                                <div
+                                  key={item.month}
+                                  className="chart-bar-group"
+                                  onMouseEnter={() => setHoveredBarIndex(idx)}
+                                  onMouseLeave={() => setHoveredBarIndex(null)}
+                                >
+                                  <div className="chart-bar-track">
+                                    <div
+                                      className="chart-bar-column"
+                                      style={{ height: `${totalHeight}%` }}
+                                    >
+                                      <div
+                                        className="bar-seg-profit"
+                                        style={{ height: `${profitPercentOfBar}%` }}
+                                        title={`${item.month} Profit: ${item.profVal}`}
+                                      />
+                                      <div
+                                        className="bar-seg-revenue"
+                                        style={{ height: `${revPercentOfBar}%` }}
+                                        title={`${item.month} Revenue: ${item.revVal}`}
+                                      />
                                     </div>
-                                  )}
+
+                                    {hoveredBarIndex === idx && (
+                                      <div className="chart-bar-tooltip">
+                                        <span className="tooltip-month">{item.month}</span>
+                                        <span className="tooltip-line profit">Profit: {item.profVal}</span>
+                                        <span className="tooltip-line revenue">Revenue: {item.revVal}</span>
+                                      </div>
+                                    )}
+                                  </div>
+                                  <span className="chart-month-label">{item.month}</span>
                                 </div>
-                                <span className="chart-month-label">{item.month}</span>
-                              </div>
-                            );
-                          })}
+                              );
+                            })}
+                          </div>
+
+                          {/* X-Axis Footer Label */}
+                          <div className="chart-x-axis-footer">
+                            <span className="chart-axis-title x-title">
+                              X-Axis: Month
+                            </span>
+                          </div>
                         </div>
                       </div>
                     </div>
