@@ -235,6 +235,9 @@ export default function App() {
   const [showExportModal, setShowExportModal] = useState(false);
   const [copiedTokens, setCopiedTokens] = useState(false);
 
+  // Sidebar Collapse State
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+
   // Selection States Component State
   const [selectionTab, setSelectionTab] = useState('Overview');
   const [selectedItems, setSelectedItems] = useState([0, 4]); // indices 0 and 4 are selected as in reference image
@@ -795,7 +798,9 @@ export default function App() {
   ];
 
   return (
-    <div className="app-root">
+    <div
+      className={`app-root ${sidebarCollapsed ? 'sidebar-is-collapsed' : ''}`}
+    >
       {/* ====================================================================
           GLOBAL TOP APP HEADER (OOMNIEYE / ALLCAD)
           Matches Reference Header Pixel-for-Pixel
@@ -865,7 +870,7 @@ export default function App() {
         {/* ====================================================================
           SIDEBAR NAVIGATION
           ==================================================================== */}
-      <aside className="sidebar" aria-label="Design System Navigation">
+      <aside className={`sidebar ${sidebarCollapsed ? 'is-collapsed' : ''}`} aria-label="Design System Navigation">
         {/* Sidebar Header with Theme Indicator */}
         <div className="sidebar-header">
           <div
@@ -888,6 +893,14 @@ export default function App() {
               aria-label="Reset defaults"
             >
               <RotateCcw size={15} />
+            </button>
+            <button
+              className="icon-btn sidebar-toggle-btn"
+              onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
+              title={sidebarCollapsed ? "Expand sidebar" : "Collapse sidebar"}
+              aria-label="Toggle navigation sidebar"
+            >
+              <ChevronLeft size={15} style={{ transform: sidebarCollapsed ? 'rotate(180deg)' : 'none', transition: 'transform 200ms ease' }} />
             </button>
           </div>
         </div>
@@ -1723,6 +1736,17 @@ export default function App() {
         {/* Top Header with Theme Switcher */}
         <header className="top-header">
           <div className="header-left">
+            {sidebarCollapsed && (
+              <button
+                className="icon-btn sidebar-expand-trigger"
+                onClick={() => setSidebarCollapsed(false)}
+                title="Expand navigation sidebar"
+                aria-label="Expand navigation sidebar"
+              >
+                <Sliders size={14} />
+              </button>
+            )}
+
             <div
               className="preview-tag clickable"
               onClick={() => setShowPreviewScreenCard((prev) => !prev)}
