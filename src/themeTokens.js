@@ -29,6 +29,16 @@ export const COLOR_SCHEMES = {
     primaryActive: '#3146C7',
     secondary: '#25C6E8',
     highlight: '#6B7FF2',
+    cardBackground: 'linear-gradient(to top right, #83B2FE, #D3DFF5)',
+    cardBgType: 'gradient',
+    cardBgGradientStart: '#83B2FE',
+    cardBgGradientEnd: '#D3DFF5',
+    cardBgGradientDir: 'to top right',
+    darkCardBackground: 'linear-gradient(to top right, #010E2B, #031F5E)',
+    darkCardBgType: 'gradient',
+    darkCardBgGradientStart: '#010E2B',
+    darkCardBgGradientEnd: '#031F5E',
+    darkCardBgGradientDir: 'to top right',
     shades: [
       '#EEF2FF',
       '#E0E7FF',
@@ -49,6 +59,16 @@ export const COLOR_SCHEMES = {
     primaryActive: '#047857',
     secondary: '#F59E0B',
     highlight: '#2EE59D',
+    cardBackground: 'linear-gradient(to top right, #9CE1B5, #ECEDEC)',
+    cardBgType: 'gradient',
+    cardBgGradientStart: '#9CE1B5',
+    cardBgGradientEnd: '#ECEDEC',
+    cardBgGradientDir: 'to top right',
+    darkCardBackground: 'linear-gradient(to top right, #001A09, #094620)',
+    darkCardBgType: 'gradient',
+    darkCardBgGradientStart: '#001A09',
+    darkCardBgGradientEnd: '#094620',
+    darkCardBgGradientDir: 'to top right',
     shades: [
       '#ECFDF5',
       '#D1FAE5',
@@ -173,8 +193,8 @@ export const APPEARANCE_MODES = {
 /**
  * Derives the unified theme token object from (colorScheme, appearance)
  */
-export function deriveTheme(colorSchemeKey = 'blue', appearanceKey = 'light') {
-  const scheme = COLOR_SCHEMES[colorSchemeKey] || COLOR_SCHEMES.blue;
+export function deriveTheme(colorSchemeKey = 'green', appearanceKey = 'light') {
+  const scheme = COLOR_SCHEMES[colorSchemeKey] || COLOR_SCHEMES.green;
   const appearance = APPEARANCE_MODES[appearanceKey] || APPEARANCE_MODES.light;
   const isDark = appearanceKey === 'dark';
 
@@ -199,7 +219,7 @@ export function deriveTheme(colorSchemeKey = 'blue', appearanceKey = 'light') {
     background: appearance.background,
     sidebar: appearance.sidebar,
     previewBackground: appearance.previewBackground,
-    cardBackground: appearance.cardBackground,
+    cardBackground: isDark ? (scheme.darkCardBackground || appearance.cardBackground) : (scheme.cardBackground || appearance.cardBackground),
     nestedCard: appearance.nestedCard,
     surfaceElevated: appearance.surfaceElevated,
 

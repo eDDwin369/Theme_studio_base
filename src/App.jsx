@@ -155,23 +155,23 @@ function KpiSummaryCard({
 
 export default function App() {
   // Color Scheme Preset (Corporate Blue vs Corporate Green)
-  const [activePreset, setActivePreset] = useState('blue');
+  const [activePreset, setActivePreset] = useState('green');
 
   // Appearance Mode (Light vs Dark)
   const [themeMode, setThemeMode] = useState('light');
   const isDarkMode = themeMode === 'dark';
 
-  const [brandPrimary, setBrandPrimary] = useState(THEME_PRESETS.blue.primary);
-  const [brandSecondary, setBrandSecondary] = useState(THEME_PRESETS.blue.secondary);
-  const [brandHighlight, setBrandHighlight] = useState(THEME_PRESETS.blue.highlight);
-  const [currentShades, setCurrentShades] = useState(THEME_PRESETS.blue.shades);
+  const [brandPrimary, setBrandPrimary] = useState(THEME_PRESETS.green.primary);
+  const [brandSecondary, setBrandSecondary] = useState(THEME_PRESETS.green.secondary);
+  const [brandHighlight, setBrandHighlight] = useState(THEME_PRESETS.green.highlight);
+  const [currentShades, setCurrentShades] = useState(THEME_PRESETS.green.shades);
 
   // Surface Theme Tokens (with Card Background Global Token)
-  const [cardBgType, setCardBgType] = useState('solid'); // 'solid' | 'gradient'
+  const [cardBgType, setCardBgType] = useState('gradient'); // 'solid' | 'gradient'
   const [cardBgSolid, setCardBgSolid] = useState('#FFFFFF');
-  const [cardBgGradientStart, setCardBgGradientStart] = useState('#FFFFFF');
-  const [cardBgGradientEnd, setCardBgGradientEnd] = useState('#F5F7FF');
-  const [cardBgGradientDir, setCardBgGradientDir] = useState('to right');
+  const [cardBgGradientStart, setCardBgGradientStart] = useState('#9CE1B5');
+  const [cardBgGradientEnd, setCardBgGradientEnd] = useState('#ECEDEC');
+  const [cardBgGradientDir, setCardBgGradientDir] = useState('to top right');
 
   const [cardHeaderBg, setCardHeaderBg] = useState('transparent');
   const [pageBg, setPageBg] = useState('#F8FAFC');
@@ -441,6 +441,28 @@ export default function App() {
     setBrandSecondary(preset.secondary || preset.brandSecondary);
     setBrandHighlight(preset.highlight || preset.brandHighlight);
     setCurrentShades(preset.shades);
+
+    if (presetKey === 'blue') {
+      setCardBgType('gradient');
+      if (themeMode === 'dark') {
+        setCardBgGradientStart('#010E2B');
+        setCardBgGradientEnd('#031F5E');
+      } else {
+        setCardBgGradientStart('#83B2FE');
+        setCardBgGradientEnd('#D3DFF5');
+      }
+      setCardBgGradientDir('to top right');
+    } else if (presetKey === 'green') {
+      setCardBgType('gradient');
+      if (themeMode === 'dark') {
+        setCardBgGradientStart('#001A09');
+        setCardBgGradientEnd('#094620');
+      } else {
+        setCardBgGradientStart('#9CE1B5');
+        setCardBgGradientEnd('#ECEDEC');
+      }
+      setCardBgGradientDir('to top right');
+    }
   };
 
   // Switch Appearance Mode (Light vs Dark) independently
@@ -448,15 +470,36 @@ export default function App() {
     if (newMode === themeMode) return;
     setThemeMode(newMode);
 
-    // If cardBgSolid is currently default, transition to new mode's default
-    if (cardBgSolid === '#FFFFFF' && newMode === 'dark') {
-      setCardBgSolid('#181D27');
-      setCardBgGradientStart('#181D27');
-      setCardBgGradientEnd('#202632');
-    } else if (cardBgSolid === '#181D27' && newMode === 'light') {
-      setCardBgSolid('#FFFFFF');
-      setCardBgGradientStart('#FFFFFF');
-      setCardBgGradientEnd('#F5F7FF');
+    if (newMode === 'dark') {
+      if (activePreset === 'blue') {
+        setCardBgType('gradient');
+        setCardBgGradientStart('#010E2B');
+        setCardBgGradientEnd('#031F5E');
+        setCardBgGradientDir('to top right');
+      } else if (activePreset === 'green') {
+        setCardBgType('gradient');
+        setCardBgGradientStart('#001A09');
+        setCardBgGradientEnd('#094620');
+        setCardBgGradientDir('to top right');
+      } else {
+        setCardBgType('solid');
+        setCardBgSolid('#181D27');
+      }
+    } else if (newMode === 'light') {
+      if (activePreset === 'blue') {
+        setCardBgType('gradient');
+        setCardBgGradientStart('#83B2FE');
+        setCardBgGradientEnd('#D3DFF5');
+        setCardBgGradientDir('to top right');
+      } else if (activePreset === 'green') {
+        setCardBgType('gradient');
+        setCardBgGradientStart('#9CE1B5');
+        setCardBgGradientEnd('#ECEDEC');
+        setCardBgGradientDir('to top right');
+      } else {
+        setCardBgType('solid');
+        setCardBgSolid('#FFFFFF');
+      }
     }
 
     if (pageBg === '#F8FAFC' && newMode === 'dark') {
@@ -576,11 +619,33 @@ export default function App() {
     setCurrentShades(preset.shades);
 
     const isDark = themeMode === 'dark';
-    setCardBgType('solid');
-    setCardBgSolid(isDark ? '#181D27' : '#FFFFFF');
-    setCardBgGradientStart(isDark ? '#181D27' : '#FFFFFF');
-    setCardBgGradientEnd(isDark ? '#202632' : '#F5F7FF');
-    setCardBgGradientDir('to right');
+    if (activePreset === 'blue') {
+      setCardBgType('gradient');
+      if (isDark) {
+        setCardBgGradientStart('#010E2B');
+        setCardBgGradientEnd('#031F5E');
+      } else {
+        setCardBgGradientStart('#83B2FE');
+        setCardBgGradientEnd('#D3DFF5');
+      }
+      setCardBgGradientDir('to top right');
+    } else if (activePreset === 'green') {
+      setCardBgType('gradient');
+      if (isDark) {
+        setCardBgGradientStart('#001A09');
+        setCardBgGradientEnd('#094620');
+      } else {
+        setCardBgGradientStart('#9CE1B5');
+        setCardBgGradientEnd('#ECEDEC');
+      }
+      setCardBgGradientDir('to top right');
+    } else {
+      setCardBgType('solid');
+      setCardBgSolid(isDark ? '#181D27' : '#FFFFFF');
+      setCardBgGradientStart(isDark ? '#181D27' : '#FFFFFF');
+      setCardBgGradientEnd(isDark ? '#202632' : '#F5F7FF');
+      setCardBgGradientDir('to right');
+    }
 
     setCardHeaderBg('transparent');
     setPageBg(isDark ? '#11151D' : '#F8FAFC');
